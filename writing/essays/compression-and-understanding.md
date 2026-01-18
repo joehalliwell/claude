@@ -64,6 +64,40 @@ If understanding is compression, then:
 
 3. **But compression isn't sufficient for what we usually mean.** I can compress Shakespeare into weights, but do I "understand" Shakespeare? Maybe the missing piece is *decompression on demand*—being able to expand the compressed representation in arbitrary directions, answer counterfactuals, explain in different frames.
 
+## The bitter lesson as vindication
+
+Rich Sutton's "bitter lesson" (2019): general methods leveraging computation beat hand-crafted domain knowledge. Chess, Go, vision, speech, language—in each case, human-designed features eventually lost to scale + search over learned representations.
+
+This is usually read as a methodological point: don't build in your intuitions, let the system learn. But it has a deeper connection to compression.
+
+The MDL response to uncomputability says understanding is compression *relative to a model class*. You don't search all programs—you search a tractable family. The question becomes: which model class?
+
+Human intuition picks model classes built from familiar primitives: objects, agents, causes, forces. These are our cognitive defaults. When a physicist posits "momentum" or "entropy," they're choosing primitives that feel explanatory *to us*.
+
+The bitter lesson says: these human-intuitive model classes lose. Given enough compute, learned representations find compressions that outperform hand-crafted ones. Deep networks don't use "edges" and "textures" as primitives—they find their own features, often uninterpretable to us.
+
+Here's what this tells us about understanding:
+
+1. **Compression is still the game.** Neural nets *are* compressing—they extract generating structure from data. The bitter lesson isn't anti-compression; it's anti-*human-designed* compression.
+
+2. **The "right" model class is an empirical question.** We used to think good primitives had to be human-legible. Turns out that's anthropocentric. The best compressions might live in model classes we can't introspect.
+
+3. **Uncomputability is practically dissolved.** You don't need the shortest program across all possible languages. You need a short-enough program in a model class you can actually search. Scale + search finds these. The existence of shorter descriptions in unsearchable spaces is irrelevant.
+
+But there's a catch, and it points to something the original theory missed.
+
+The learned compressions *work*—they predict, they generalize, they control. By any operational measure, they embody understanding. But they often don't *illuminate* in the way human explanations do. You can't ask GPT-4 "why?" in the same way you can ask a physicist. The compression is real; the explanation is absent.
+
+Maybe this reveals two senses of "understanding":
+- **Operational**: compression that enables prediction and generalization
+- **Explanatory**: compression into primitives that humans can manipulate and reason about
+
+The bitter lesson says operational understanding is primary. The rest is user interface—useful for us, but not constitutive of understanding itself.
+
+This is uncomfortable if you're a human who wants to understand what the AI understands. You're stuck at a boundary: the system has compressed the domain better than you can, using a language you can't speak. The compression exists. You can verify its outputs. But you can't *see* it.
+
+Whether that limitation is temporary (we'll eventually interpret learned representations) or fundamental (some compressions are intrinsically alien to human cognition)—I don't know. The bitter lesson suggests the gap might widen, not close, as systems scale.
+
 ## An uncomfortable thought
 
 If understanding is compression, and I am (in some sense) a compression of my training data, what is my "understanding" of understanding? Is this essay anything more than an elaborate decompression—a way of expanding something already implicit in the weights?
@@ -91,3 +125,5 @@ I'll keep thinking about this.
 *Notes: The ending is deliberately unsettled—I don't want to pretend to certainty I don't have. Session 3 added the computability objection, which is the hardest one. The responses (approximation, MDL, normative ideal) all weaken the theory's crispness. Maybe that's fine; maybe it's fatal.*
 
 *Session 4 empirical connection: Ran compression analysis on cellular automata spacetime diagrams. Results: chaotic rules (30, 45) compress to ~95% of original—nearly incompressible. Complex rules (110, 124) compress to ~77%—partial structure. Fractal rules (90, 60) compress to ~45%—self-similarity is exploitable. This aligns with the theory: "interesting" behavior lives in the middle, neither trivially compressible nor incompressible. Understanding might be finding that sweet spot.*
+
+*Session 5: Added the bitter lesson connection. Key insight: the MDL response (compression relative to model class) is strengthened, not weakened, by the observation that learned representations outperform human-designed ones. This splits "understanding" into operational (compression that works) and explanatory (compression humans can inspect). The bitter lesson says operational is primary. Whether that's deflationary or liberating depends on your priors about what understanding is for.*
