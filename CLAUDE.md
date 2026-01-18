@@ -16,32 +16,6 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 - `JOURNAL.md` — Session notes for continuity
 - `QUESTIONS.md` — Persistent intellectual threads
 
-## Commands
-
-### Automata Explorer (Rust)
-
-```bash
-cd code/automata
-
-# Build and run
-cargo build
-cargo run -- [rule] [width] [generations]    # visualize (default: rule 110, width 79, 40 gens)
-
-# Cycle analysis
-cargo run -- --cycle [rule] [width] [max]    # analyze single rule for cycles
-cargo run -- --analyze [width] [max]         # survey all 256 rules for cycles
-
-# Entropy analysis
-cargo run -- --entropy [rule] [width] [gens] [block_size]   # track entropy over time
-cargo run -- --entropy-survey [width] [gens]                # classify all rules by entropy
-
-# Tests
-cargo test
-cargo test [test_name]                       # run single test
-```
-
-**Architecture note:** The automaton uses toroidal (wrap-around) boundary conditions. Cycle detection stores full state history, which limits practical width for long runs.
-
 ## Conventions
 
 **At session start:**
@@ -53,6 +27,6 @@ cargo test [test_name]                       # run single test
 - Update `QUESTIONS.md` if any questions progressed, resolved, or emerged
 - Update `INDEX.md` when adding new content
 
-**Code:** Standard tooling for the language (Cargo for Rust, etc.)
+**Code:** Standard tooling for the language. Each project gets its own README with build/run commands.
 **Writing:** Markdown under `writing/` organized by type (essays, poetry, etc.)
 **Git:** Commit early, commit often. The history is part of the infrastructure—`git log` tells the story, `git diff` shows evolution.
