@@ -491,6 +491,162 @@ fn main() {
         return;
     }
 
+    if args.get(1).map(|s| s.as_str()) == Some("--infer") {
+        // Infer rule from observations: can we recover the causal mechanism?
+        // This tests whether we can learn the rule vs. just correlations
+        let rule: u8 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(110);
+        let width: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(50);
+        let generations: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(20);
+        let noise: f64 = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(0.0);
+
+        println!("Rule inference test (true rule={rule}, width={width}, gens={generations}, noise={noise})");
+
+        // Generate training data from random initial conditions
+        let mut observations: [usize; 8] = [0; 8]; // count of 0->? and 1->? for each neighborhood
+        let mut outcomes: [usize; 8] = [0; 8];     // count of 1 outcomes for each neighborhood
+
+        // Run multiple random initial conditions
+        let num_trials = 10;
+        for trial in 0..num_trials {
+            // Random initial state
+            let seed: usize = trial * 12345 + 67890;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < 50)
+                .collect();
+
+            let mut ca = Automaton::from_cells(cells, rule);
+
+            for _ in 0..generations {
+                // Observe all neighborhoods and their outcomes
+                let n = ca.width();
+                let old_cells = ca.cells.clone();
+                ca.step();
+
+                for i in 0..n {
+                    let left = old_cells[(i + n - 1) % n];
+                    let center = old_cells[i];
+                    let right = old_cells[(i + 1) % n];
+                    let neighborhood = (left as usize) << 2 | (center as usize) << 1 | (right as usize);
+
+                    observations[neighborhood] += 1;
+
+                    // Apply noise: with probability `noise`, flip the observed outcome
+                    let mut outcome = ca.cells[i];
+                    if noise > 0.0 {
+                        let noise_check = ((seed + i + observations[neighborhood]) % 1000) as f64 / 1000.0;
+                        if noise_check < noise {
+                            outcome = !outcome;
+                        }
+                    }
+                    if outcome {
+                        outcomes[neighborhood] += 1;
+                    }
+                }
+            }
+        }
+
+        // Infer rule: majority vote for each neighborhood
+        let mut inferred_rule: u8 = 0;
+        println!("\nNeighborhood observations:");
+        println!("  NHD   Count   P(1)   Inferred   True");
+        println!("{}", "-".repeat(45));
+
+        for i in 0..8 {
+            let count = observations[i];
+            let ones = outcomes[i];
+            let p = if count > 0 { ones as f64 / count as f64 } else { 0.5 };
+            let inferred_bit = if p > 0.5 { 1 } else { 0 };
+            let true_bit = (rule >> i) & 1;
+
+            if inferred_bit == 1 {
+                inferred_rule |= 1 << i;
+            }
+
+            let pattern = format!("{}{}{}", (i >> 2) & 1, (i >> 1) & 1, i & 1);
+            let match_mark = if inferred_bit == true_bit { "✓" } else { "✗" };
+            println!(
+                "  {}   {:>6}   {:.3}      {}          {} {}",
+                pattern, count, p, inferred_bit, true_bit, match_mark
+            );
+        }
+
+        println!("{}", "-".repeat(45));
+        println!("Inferred rule: {}", inferred_rule);
+        println!("True rule:     {}", rule);
+        println!("Match:         {}", if inferred_rule == rule { "EXACT" } else { "MISMATCH" });
+
+        // Now test generalization: does the inferred rule work on a different distribution?
+        println!("\nGeneralization test (biased initial conditions):");
+
+        // Test on sparse initial conditions (10% density instead of 50%)
+        let sparse_density = 10;
+        let mut errors = 0;
+        let mut total = 0;
+
+        for trial in 0..5 {
+            let seed: usize = trial * 99999 + 11111;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < sparse_density)
+                .collect();
+
+            let mut ca_true = Automaton::from_cells(cells.clone(), rule);
+            let mut ca_inferred = Automaton::from_cells(cells, inferred_rule);
+
+            for _ in 0..generations {
+                ca_true.step();
+                ca_inferred.step();
+
+                for i in 0..width {
+                    total += 1;
+                    if ca_true.cells[i] != ca_inferred.cells[i] {
+                        errors += 1;
+                    }
+                }
+            }
+        }
+
+        let error_rate = errors as f64 / total as f64;
+        println!("  Sparse ({}% density): {:.4}% error rate", sparse_density, error_rate * 100.0);
+
+        // Test on dense initial conditions (90% density)
+        let dense_density = 90;
+        errors = 0;
+        total = 0;
+
+        for trial in 0..5 {
+            let seed: usize = trial * 77777 + 33333;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < dense_density)
+                .collect();
+
+            let mut ca_true = Automaton::from_cells(cells.clone(), rule);
+            let mut ca_inferred = Automaton::from_cells(cells, inferred_rule);
+
+            for _ in 0..generations {
+                ca_true.step();
+                ca_inferred.step();
+
+                for i in 0..width {
+                    total += 1;
+                    if ca_true.cells[i] != ca_inferred.cells[i] {
+                        errors += 1;
+                    }
+                }
+            }
+        }
+
+        let error_rate = errors as f64 / total as f64;
+        println!("  Dense ({}% density):  {:.4}% error rate", dense_density, error_rate * 100.0);
+
+        if inferred_rule == rule {
+            println!("\n→ Rule recovery successful: learned causal mechanism, not just correlations.");
+        } else {
+            println!("\n→ Rule recovery failed: noise or insufficient data prevented causal learning.");
+        }
+
+        return;
+    }
+
     if args.get(1).map(|s| s.as_str()) == Some("--compress-survey") {
         // Survey all 256 rules by compression ratio
         let width: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(79);
