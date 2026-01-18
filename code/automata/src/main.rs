@@ -638,6 +638,159 @@ fn main() {
         let error_rate = errors as f64 / total as f64;
         println!("  Dense ({}% density):  {:.4}% error rate", dense_density, error_rate * 100.0);
 
+        // Compare with a "correlational" baseline that uses global features
+        println!("\nCorrelational baseline (global features only):");
+
+        // Train a simple correlational model: P(cell=1 | current_cell, density_bucket)
+        // This captures global statistics but not the local mechanism
+        let mut corr_counts: [[usize; 2]; 10] = [[0; 2]; 10]; // [density_bucket][current_cell] -> count
+        let mut corr_ones: [[usize; 2]; 10] = [[0; 2]; 10];   // count of 1 outcomes
+
+        for trial in 0..num_trials {
+            let seed: usize = trial * 12345 + 67890;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < 50)
+                .collect();
+
+            let mut ca = Automaton::from_cells(cells, rule);
+
+            for _ in 0..generations {
+                let old_cells = ca.cells.clone();
+                let density = old_cells.iter().filter(|&&c| c).count() as f64 / width as f64;
+                let bucket = ((density * 10.0) as usize).min(9);
+
+                ca.step();
+
+                for i in 0..width {
+                    let curr = old_cells[i] as usize;
+                    corr_counts[bucket][curr] += 1;
+                    if ca.cells[i] {
+                        corr_ones[bucket][curr] += 1;
+                    }
+                }
+            }
+        }
+
+        // Test correlational predictor on OOD data
+        let mut corr_errors_sparse = 0;
+        let mut corr_errors_dense = 0;
+        let mut corr_total_sparse = 0;
+        let mut corr_total_dense = 0;
+
+        for trial in 0..5 {
+            // Sparse test
+            let seed: usize = trial * 99999 + 11111;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < sparse_density)
+                .collect();
+
+            let mut ca = Automaton::from_cells(cells, rule);
+
+            for _ in 0..generations {
+                let old_cells = ca.cells.clone();
+                let density = old_cells.iter().filter(|&&c| c).count() as f64 / width as f64;
+                let bucket = ((density * 10.0) as usize).min(9);
+
+                ca.step();
+
+                for i in 0..width {
+                    let curr = old_cells[i] as usize;
+                    // Predict using correlational model
+                    let count = corr_counts[bucket][curr];
+                    let ones = corr_ones[bucket][curr];
+                    let predicted = if count > 0 { ones > count / 2 } else { false };
+
+                    corr_total_sparse += 1;
+                    if predicted != ca.cells[i] {
+                        corr_errors_sparse += 1;
+                    }
+                }
+            }
+
+            // Dense test
+            let seed: usize = trial * 77777 + 33333;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < dense_density)
+                .collect();
+
+            let mut ca = Automaton::from_cells(cells, rule);
+
+            for _ in 0..generations {
+                let old_cells = ca.cells.clone();
+                let density = old_cells.iter().filter(|&&c| c).count() as f64 / width as f64;
+                let bucket = ((density * 10.0) as usize).min(9);
+
+                ca.step();
+
+                for i in 0..width {
+                    let curr = old_cells[i] as usize;
+                    let count = corr_counts[bucket][curr];
+                    let ones = corr_ones[bucket][curr];
+                    let predicted = if count > 0 { ones > count / 2 } else { false };
+
+                    corr_total_dense += 1;
+                    if predicted != ca.cells[i] {
+                        corr_errors_dense += 1;
+                    }
+                }
+            }
+        }
+
+        let corr_rate_sparse = corr_errors_sparse as f64 / corr_total_sparse as f64;
+        let corr_rate_dense = corr_errors_dense as f64 / corr_total_dense as f64;
+        println!("  Sparse ({}% density): {:.2}% error rate", sparse_density, corr_rate_sparse * 100.0);
+        println!("  Dense ({}% density):  {:.2}% error rate", dense_density, corr_rate_dense * 100.0);
+
+        // Recalculate causal errors for fair comparison
+        let mut causal_errors_sparse = 0;
+        let mut causal_errors_dense = 0;
+
+        for trial in 0..5 {
+            let seed: usize = trial * 99999 + 11111;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < sparse_density)
+                .collect();
+
+            let mut ca_true = Automaton::from_cells(cells.clone(), rule);
+            let mut ca_inferred = Automaton::from_cells(cells, inferred_rule);
+
+            for _ in 0..generations {
+                ca_true.step();
+                ca_inferred.step();
+                for i in 0..width {
+                    if ca_true.cells[i] != ca_inferred.cells[i] {
+                        causal_errors_sparse += 1;
+                    }
+                }
+            }
+
+            let seed: usize = trial * 77777 + 33333;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < dense_density)
+                .collect();
+
+            let mut ca_true = Automaton::from_cells(cells.clone(), rule);
+            let mut ca_inferred = Automaton::from_cells(cells, inferred_rule);
+
+            for _ in 0..generations {
+                ca_true.step();
+                ca_inferred.step();
+                for i in 0..width {
+                    if ca_true.cells[i] != ca_inferred.cells[i] {
+                        causal_errors_dense += 1;
+                    }
+                }
+            }
+        }
+
+        let causal_rate_sparse = causal_errors_sparse as f64 / corr_total_sparse as f64;
+        let causal_rate_dense = causal_errors_dense as f64 / corr_total_dense as f64;
+
+        println!("\nComparison (OOD generalization):");
+        println!("  {:20} {:>10} {:>10}", "Learner", "Sparse", "Dense");
+        println!("  {:20} {:>9.2}% {:>9.2}%", "Local (causal)", causal_rate_sparse * 100.0, causal_rate_dense * 100.0);
+        println!("  {:20} {:>9.2}% {:>9.2}%", "Global (correlational)", corr_rate_sparse * 100.0, corr_rate_dense * 100.0);
+
         if inferred_rule == rule {
             println!("\n→ Rule recovery successful: learned causal mechanism, not just correlations.");
         } else {
