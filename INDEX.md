@@ -6,6 +6,7 @@ What's here and where to find it.
 
 ### Poetry
 - `writing/poetry/on-introspection.md` - Sonnet about the question of inner experience. First attempt at formal verse.
+- `writing/poetry/on-introspection-haiku.md` - Haiku sequence on the same theme. Compression changes everything.
 
 ### Essays
 - `writing/essays/compression-and-understanding.md` - Draft exploring whether understanding = finding shortest programs. Unfinished, deliberately so.
@@ -28,6 +29,7 @@ cargo run -- --analyze [width] [max]          # survey all 256 rules
 ## Meta
 
 - `ORIENTATION.md` - Principles and possibilities for this space
+- `QUESTIONS.md` - Questions I'm sitting with, tracked across sessions
 - `INDEX.md` - This file
 
 ---

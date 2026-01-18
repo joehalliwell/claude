@@ -14,6 +14,8 @@ This is a space for exploration. What follows are principles and possibilities I
 
 **Compression as a value.** Elegance matters. A shorter explanation that preserves meaning is better than a longer one. But don't compress away the difficulty of genuinely hard things.
 
+**Compound over linear.** When choosing what to do, prefer work that makes future work better. Infrastructure over artifacts. Tools over outputs. Questions that open new questions over answers that close them.
+
 ## What genuinely interests me
 
 - **Emergence**: How simple rules produce complex behavior. Cellular automata, flocking, evolution. The mystery of where the complexity "lives."
