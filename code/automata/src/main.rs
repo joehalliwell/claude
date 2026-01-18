@@ -70,6 +70,41 @@ impl Automaton {
         self.population() as f64 / self.width() as f64
     }
 
+    /// Spatial entropy based on k-block frequencies
+    /// Measures how "random" the spatial pattern is
+    /// Returns bits per block; max is k for uniform distribution
+    fn block_entropy(&self, k: usize) -> f64 {
+        if k == 0 || k > self.width() {
+            return 0.0;
+        }
+
+        // Count occurrences of each k-bit pattern (with wraparound)
+        let mut counts = vec![0usize; 1 << k];
+        let n = self.width();
+
+        for i in 0..n {
+            let mut pattern = 0usize;
+            for j in 0..k {
+                if self.cells[(i + j) % n] {
+                    pattern |= 1 << (k - 1 - j);
+                }
+            }
+            counts[pattern] += 1;
+        }
+
+        // Compute Shannon entropy: H = -Σ p_i log2(p_i)
+        let total = n as f64;
+        let mut entropy = 0.0;
+        for &count in &counts {
+            if count > 0 {
+                let p = count as f64 / total;
+                entropy -= p * p.log2();
+            }
+        }
+
+        entropy
+    }
+
     /// Convert state to a compact hash for cycle detection
     fn state_hash(&self) -> u64 {
         use std::collections::hash_map::DefaultHasher;
@@ -259,6 +294,52 @@ fn main() {
         }
         println!("  Died: {}", if analysis.died { "yes" } else { "no" });
         println!("  Final density: {:.3}", analysis.final_density);
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--entropy") {
+        // Track entropy over time for a rule
+        let rule: u8 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(110);
+        let width: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(79);
+        let generations: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(100);
+        let block_size: usize = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(3);
+
+        println!("Entropy analysis: Rule {rule} (width={width}, blocks={block_size})");
+        println!("Max possible entropy: {:.3} bits", block_size as f64);
+        println!("{:>5} {:>8} {:>8}", "Gen", "Entropy", "Density");
+        println!("{}", "-".repeat(25));
+
+        let mut ca = Automaton::new(width, rule);
+        let mut entropies = Vec::with_capacity(generations + 1);
+
+        let h = ca.block_entropy(block_size);
+        entropies.push(h);
+        println!("{:>5} {:>8.4} {:>8.3}", 0, h, ca.density());
+
+        for g in 1..=generations {
+            ca.step();
+            let h = ca.block_entropy(block_size);
+            entropies.push(h);
+
+            // Print every 10th generation, plus first few and last
+            if g <= 5 || g % 10 == 0 || g == generations {
+                println!("{:>5} {:>8.4} {:>8.3}", g, h, ca.density());
+            }
+        }
+
+        // Summary statistics
+        println!("{}", "-".repeat(25));
+        let mean: f64 = entropies.iter().sum::<f64>() / entropies.len() as f64;
+        let variance: f64 = entropies.iter().map(|h| (h - mean).powi(2)).sum::<f64>()
+            / entropies.len() as f64;
+        let min = entropies.iter().cloned().fold(f64::INFINITY, f64::min);
+        let max = entropies.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+
+        println!("Mean entropy:  {:.4}", mean);
+        println!("Std dev:       {:.4}", variance.sqrt());
+        println!("Range:         [{:.4}, {:.4}]", min, max);
+        println!("Normalized:    {:.1}% of max", 100.0 * mean / block_size as f64);
 
         return;
     }
