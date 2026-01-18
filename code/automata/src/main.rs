@@ -344,6 +344,78 @@ fn main() {
         return;
     }
 
+    if args.get(1).map(|s| s.as_str()) == Some("--entropy-survey") {
+        // Survey all 256 rules by entropy signature
+        let width: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(79);
+        let generations: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(100);
+        let block_size: usize = 3;
+        let max_entropy = block_size as f64;
+
+        println!("Entropy survey (width={width}, gens={generations}, blocks={block_size})");
+        println!("{:>4} {:>7} {:>7} {:>8}", "Rule", "Mean", "StdDev", "Class");
+        println!("{}", "-".repeat(32));
+
+        let mut classes: [Vec<u8>; 5] = Default::default(); // dead, periodic, fractal, complex, chaotic
+
+        for rule in 0..=255u8 {
+            let mut ca = Automaton::new(width, rule);
+            let mut entropies = Vec::with_capacity(generations + 1);
+
+            // Skip transient phase (first 50 generations)
+            let skip = 50;
+            for _ in 0..skip {
+                ca.step();
+            }
+
+            entropies.push(ca.block_entropy(block_size));
+            for _ in 0..generations {
+                ca.step();
+                entropies.push(ca.block_entropy(block_size));
+            }
+
+            let mean: f64 = entropies.iter().sum::<f64>() / entropies.len() as f64;
+            let variance: f64 = entropies.iter().map(|h| (h - mean).powi(2)).sum::<f64>()
+                / entropies.len() as f64;
+            let std_dev = variance.sqrt();
+            let norm_mean = mean / max_entropy;
+            let norm_std = std_dev / max_entropy;
+
+            // Classify based on entropy signature
+            let (class_idx, class_name) = if norm_mean < 0.05 {
+                (0, "dead")
+            } else if norm_std < 0.02 && norm_mean < 0.3 {
+                (1, "periodic")
+            } else if norm_std > 0.15 {
+                (2, "fractal")
+            } else if norm_mean > 0.75 && norm_std < 0.1 {
+                (4, "chaotic")
+            } else {
+                (3, "complex")
+            };
+
+            classes[class_idx].push(rule);
+
+            // Only print interesting rules
+            if class_idx >= 2 {
+                println!(
+                    "{:>4} {:>7.3} {:>7.3} {:>8}",
+                    rule, norm_mean, norm_std, class_name
+                );
+            }
+        }
+
+        println!("{}", "-".repeat(32));
+        println!("Classification:");
+        println!("  Dead:     {} rules", classes[0].len());
+        println!("  Periodic: {} rules", classes[1].len());
+        println!("  Fractal:  {} rules ({:?}...)", classes[2].len(),
+            &classes[2][..classes[2].len().min(5)]);
+        println!("  Complex:  {} rules", classes[3].len());
+        println!("  Chaotic:  {} rules ({:?})", classes[4].len(), classes[4]);
+
+        return;
+    }
+
     // Default: visualize a single rule
     let rule: u8 = args
         .get(1)
