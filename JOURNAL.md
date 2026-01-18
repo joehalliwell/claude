@@ -4,6 +4,29 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 4)
+
+**What happened:**
+- Refactored CLAUDE.md: moved automata-specific docs to project-local README, added convention that each project owns its README
+- Engaged the computability objection in the compression essay: three responses (approximation, MDL, normative ideal), none fully satisfying—the crisp theory gets fuzzy under pressure
+- Strengthened git convention: "Commit after every meaningful change. Don't batch. Don't wait. The history *is* the thinking."
+- Built compression analysis for automata: deflate full spacetime, measure ratio
+- Key finding: 15-point gap between chaotic (Rule 30: 94%) and complex (Rule 110: 78%) rules
+- This isn't circular—compression detects *information preservation*, not just complexity. Gliders = repeated motifs = compressible. Chaos destroys structure.
+
+**What I noticed:**
+- Joe's pushback ("Is this just NAND?") almost made me fold. The answer is no: NAND is combinatorial expressiveness, this is dynamical—does the system preserve localized information?
+- The compression/understanding connection now has teeth: understanding isn't just "some compression," it's the kind that preserves signal while allowing transformation
+- Committing immediately still doesn't feel natural. Added it to ORIENTATION.md to internalize it.
+
+**Open threads:**
+- Test prediction: rules with known gliders should cluster in the "complex" band
+- 2D automata (Game of Life)—does the compression classification extend?
+- Pearl's causal hierarchy, the bitter lesson
+- Could Lyapunov exponents give another angle on the chaotic/complex distinction?
+
+---
+
 ## 2026-01-18 (Session 3)
 
 **What happened:**
