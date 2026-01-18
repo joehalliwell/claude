@@ -13,9 +13,11 @@
 ///   110 = 0b01101110
 ///   111->0, 110->1, 101->1, 100->0, 011->1, 010->1, 001->1, 000->0
 
+use std::collections::HashSet;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 struct Automaton {
     cells: Vec<bool>,
     rule: u8,
@@ -67,6 +69,80 @@ impl Automaton {
     fn density(&self) -> f64 {
         self.population() as f64 / self.width() as f64
     }
+
+    /// Convert state to a compact hash for cycle detection
+    fn state_hash(&self) -> u64 {
+        use std::collections::hash_map::DefaultHasher;
+        let mut hasher = DefaultHasher::new();
+        self.cells.hash(&mut hasher);
+        hasher.finish()
+    }
+}
+
+impl Hash for Automaton {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.cells.hash(state);
+    }
+}
+
+/// Result of running a CA until it cycles or reaches max steps
+#[derive(Debug)]
+struct CycleAnalysis {
+    /// Steps before entering cycle (transient length)
+    transient: usize,
+    /// Length of the cycle (0 if didn't find one)
+    period: usize,
+    /// Whether the CA died (all zeros)
+    died: bool,
+    /// Final density
+    final_density: f64,
+}
+
+/// Run CA until it enters a cycle or hits max_steps
+fn find_cycle(rule: u8, width: usize, max_steps: usize) -> CycleAnalysis {
+    let mut ca = Automaton::new(width, rule);
+    let mut seen: HashSet<Vec<bool>> = HashSet::new();
+    let mut history: Vec<Vec<bool>> = Vec::new();
+
+    seen.insert(ca.cells.clone());
+    history.push(ca.cells.clone());
+
+    for step in 0..max_steps {
+        ca.step();
+
+        // Check if died
+        if ca.population() == 0 {
+            return CycleAnalysis {
+                transient: step + 1,
+                period: 1, // stays dead
+                died: true,
+                final_density: 0.0,
+            };
+        }
+
+        // Check if we've seen this state before
+        if seen.contains(&ca.cells) {
+            // Find where in history this state first appeared
+            let cycle_start = history.iter().position(|s| s == &ca.cells).unwrap();
+            return CycleAnalysis {
+                transient: cycle_start,
+                period: step + 1 - cycle_start,
+                died: false,
+                final_density: ca.density(),
+            };
+        }
+
+        seen.insert(ca.cells.clone());
+        history.push(ca.cells.clone());
+    }
+
+    // Didn't find cycle within max_steps
+    CycleAnalysis {
+        transient: max_steps,
+        period: 0,
+        died: false,
+        final_density: ca.density(),
+    }
 }
 
 impl fmt::Display for Automaton {
@@ -113,6 +189,81 @@ const INTERESTING_RULES: [u8; 12] = [
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
+    // Check for special modes
+    if args.get(1).map(|s| s.as_str()) == Some("--analyze") {
+        // Analyze all 256 rules for cycle behavior
+        let width: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(31);
+        let max_steps: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(1000);
+
+        println!("Analyzing all 256 rules (width={width}, max_steps={max_steps})");
+        println!("{:>4} {:>10} {:>8} {:>6} {:>8}", "Rule", "Transient", "Period", "Died?", "Density");
+        println!("{}", "-".repeat(50));
+
+        let mut class_counts = [0usize; 4]; // die, short cycle, long cycle, no cycle found
+
+        for rule in 0..=255u8 {
+            let analysis = find_cycle(rule, width, max_steps);
+
+            let class = if analysis.died {
+                0
+            } else if analysis.period > 0 && analysis.period <= 10 {
+                1
+            } else if analysis.period > 10 {
+                2
+            } else {
+                3
+            };
+            class_counts[class] += 1;
+
+            // Only print interesting rules (not immediately dying, or complex behavior)
+            if !analysis.died || analysis.transient > 1 {
+                println!(
+                    "{:>4} {:>10} {:>8} {:>6} {:>8.3}",
+                    rule,
+                    analysis.transient,
+                    if analysis.period > 0 {
+                        analysis.period.to_string()
+                    } else {
+                        ">max".to_string()
+                    },
+                    if analysis.died { "yes" } else { "no" },
+                    analysis.final_density
+                );
+            }
+        }
+
+        println!("{}", "-".repeat(50));
+        println!("Summary:");
+        println!("  Dies immediately: {}", class_counts[0]);
+        println!("  Short cycle (<=10): {}", class_counts[1]);
+        println!("  Long cycle (>10): {}", class_counts[2]);
+        println!("  No cycle found: {}", class_counts[3]);
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--cycle") {
+        // Analyze single rule for cycle
+        let rule: u8 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(110);
+        let width: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(31);
+        let max_steps: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(10000);
+
+        println!("Analyzing Rule {rule} (width={width}, max_steps={max_steps})");
+        let analysis = find_cycle(rule, width, max_steps);
+
+        println!("  Transient length: {}", analysis.transient);
+        if analysis.period > 0 {
+            println!("  Cycle period: {}", analysis.period);
+        } else {
+            println!("  Cycle period: not found within {max_steps} steps");
+        }
+        println!("  Died: {}", if analysis.died { "yes" } else { "no" });
+        println!("  Final density: {:.3}", analysis.final_density);
+
+        return;
+    }
+
+    // Default: visualize a single rule
     let rule: u8 = args
         .get(1)
         .and_then(|s| s.parse().ok())
