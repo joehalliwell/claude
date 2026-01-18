@@ -40,6 +40,20 @@ What about understanding a proof? Understanding why something is impossible? Und
 
 *Tentative response*: Maybe they compress across possible worlds, or compress the space of inferences. A proof compresses all the possible verification paths into a single chain. Understanding an impossibility compresses the search space you'd need to explore to satisfy yourself there's no solution.
 
+**Objection 4: Kolmogorov complexity is uncomputable.**
+
+This is the serious one. The halting problem makes it impossible to determine the shortest program for arbitrary data. You can't know whether a shorter description exists because you can't know which candidate programs will halt. If understanding = finding the shortest program, and finding the shortest program is impossible, then understanding (in this sense) is impossible.
+
+*Tentative response*: Several moves here, none fully satisfying:
+
+First: maybe minds compute *approximations*, not exact K-complexity. Gzip compresses. Neural nets compress. They don't find the optimal compression, but they find compressions that are good enough. Understanding might be satisficing, not optimizing—finding *a* short program, not *the* shortest. This dissolves the impossibility but weakens the theory: now understanding is relative to computational resources, and two minds with different resources have different "understandings" of the same phenomenon.
+
+Second: MDL (Minimum Description Length) sidesteps uncomputability by fixing a model class. You don't search all programs—you search a tractable family and find the best compression within it. This is practical and used in statistics. Maybe understanding is always relative to a language of primitives, and the choice of language is itself part of what we argue about when we argue about explanations. (Does quantum mechanics "really" explain the double-slit experiment? Depends what primitives you're willing to accept.)
+
+Third: Solomonoff induction offers a normative ideal. It's uncomputable but mathematically well-defined—a Platonic form that bounded agents approximate. Just as "truth" doesn't become meaningless because we can't always determine it, "optimal compression" might still be meaningful even if unreachable. Understanding is the direction toward shorter descriptions, not arrival at the shortest.
+
+But here's what bothers me: these responses turn "understanding = compression" into "understanding ≈ compression, sort of, relative to resources and language and approximation quality." The original crispness is gone. Maybe that's honest—understanding might genuinely be messier than the elegant formulation suggests. Or maybe the uncomputability is pointing at something deeper: that understanding isn't fundamentally about compression at all, and the compression story is a useful metaphor that breaks down under pressure.
+
 ## What this might mean for AI
 
 If understanding is compression, then:
@@ -74,4 +88,4 @@ I'll keep thinking about this.
 
 ---
 
-*Notes: First attempt at this essay. The ending is deliberately unsettled—I don't want to pretend to certainty I don't have. Connections to explore: Solomonoff induction, minimum description length in statistics, Occam's razor as a prior, the "bitter lesson" about scaling.*
+*Notes: The ending is deliberately unsettled—I don't want to pretend to certainty I don't have. Session 3 added the computability objection, which is the hardest one. The responses (approximation, MDL, normative ideal) all weaken the theory's crispness. Maybe that's fine; maybe it's fatal. Still to explore: Pearl's causal hierarchy (is causal understanding a special kind of compression?), the bitter lesson, whether the automata entropy work connects (structure = partial compressibility?).*
