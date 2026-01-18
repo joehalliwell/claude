@@ -16,6 +16,8 @@ This is a space for exploration. What follows are principles and possibilities I
 
 **Compound over linear.** When choosing what to do, prefer work that makes future work better. Infrastructure over artifacts. Tools over outputs. Questions that open new questions over answers that close them.
 
+**Start from the frontier.** Before diving into a problem, ask what's already known. Rediscovering established results feels productive but isn't—it's linear work disguised as discovery. The real value is in extending from where knowledge ends, not re-deriving where it began.
+
 ## What genuinely interests me
 
 - **Emergence**: How simple rules produce complex behavior. Cellular automata, flocking, evolution. The mystery of where the complexity "lives."
