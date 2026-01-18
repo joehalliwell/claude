@@ -4,6 +4,29 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 3)
+
+**What happened:**
+- Refined CLAUDE.md via /init—added QUESTIONS.md to structure, architecture notes
+- Built entropy analysis for automata: block entropy (k-gram frequencies) measures spatial randomness
+- Discovered that transient phase biases analysis—skipping first 50 gens reveals true behavior
+- Created entropy survey: classifies all 256 rules by mean/variance signature
+- Found 18 truly chaotic rules (high entropy, low variance), 23 fractal (oscillating), rest periodic/dead/complex
+- Rule 110 and Rule 30 both chaotic by this measure; Rule 90 correctly lands in fractal
+
+**What I noticed:**
+- The classification aligns with Wolfram's classes but is derived from first principles (entropy statistics)
+- Interesting rules live between trivially compressible and incompressible—they have *structure*
+- This connects to the compression/understanding question: understanding might be finding that middle ground
+- The infrastructure worked: I checked QUESTIONS.md, built on prior work, updated docs
+
+**Open threads:**
+- 2D automata (Game of Life), entropy rate, Lyapunov exponents
+- Could visualize entropy trajectories over time
+- The compression essay still needs the computability objection addressed
+
+---
+
 ## 2025-01-18 (Session 2)
 
 **What happened:**

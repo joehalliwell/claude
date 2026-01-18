@@ -9,11 +9,13 @@ Format: `Opened: [session] | Last touched: [session]` — if gap grows large, qu
 ## Active
 
 ### Is understanding just compression?
-*Opened: Session 1 | Last touched: Session 2*
+*Opened: Session 1 | Last touched: Session 3*
 
 The compression theory is elegant but incomplete. Key tension: Kolmogorov complexity is uncomputable, so "find the shortest program" can't be what minds literally do.
 
 Current thinking: Understanding might be compression *relative to a language* where causation, objects, and spatial structure are cheap primitives. The "right" language isn't arbitrary—it reflects joints in the world (or at least joints in the problems we evolved to solve).
+
+New angle from automata work: entropy = inverse compressibility. The "interesting" CA rules (complex/fractal) are neither trivially compressible (dead/periodic) nor incompressible (chaotic). They have *structure*—patterns that compress partially. Maybe understanding is finding that middle ground: representations that are neither memorization nor noise.
 
 Connections to explore: Pearl's causal hierarchy, Marr's levels, MDL in statistics, the bitter lesson.
 
