@@ -9,7 +9,7 @@ Format: `Opened: [session] | Last touched: [session]` — if gap grows large, qu
 ## Active
 
 ### Is understanding just compression?
-*Opened: Session 1 | Last touched: Session 7*
+*Opened: Session 1 | Last touched: Session 9*
 
 Engaged with the computability objection directly in the essay. Three responses, none fully satisfying:
 1. **Approximation**: minds don't compute exact K-complexity, just "good enough" compressions. But this relativizes understanding to resources.
@@ -44,7 +44,24 @@ This is test #3 from Session 6 (transfer under mechanism shift). The mechanism i
 Open threads:
 - Do neural networks find causal or correlational solutions on this task?
 - Can a learner discover the locality (3-cell neighborhood) from row transitions alone?
-- Does scale eventually reach causal compression, or is there an architectural ceiling?
+- ~~Does scale eventually reach causal compression, or is there an architectural ceiling?~~
+
+**Cross-model experiments** (Session 9): Used `llm` CLI to test multiple models on CA rule inference. Key findings:
+
+1. **Recognition ≠ induction.** Larger models (gpt-4o, gemini-2.5-flash) succeed by *recognizing* "Rule 110" from training, not causal induction. Evidence: gpt-4o with only 2 rows fills in rules for unseen neighborhoods (011, 101, 110, 111) correctly—retrieval, not inference.
+
+2. **Understanding ≠ execution.** o3-mini shows exhaustive CoT reasoning, names the correct rule, then makes an indexing error applying it. The rule is compressed in weights; decompression on novel inputs fails. "Knowing" and "doing" split apart.
+
+3. **Scale helps recognition, not execution.** gpt-4o-mini fails at both. gpt-4o succeeds at recognition but (with fewer rows) fails at execution. o3-mini succeeds at recognition but fails at execution despite verbose reasoning.
+
+| Model | Rule Recognition | Execution |
+|-------|-----------------|-----------|
+| gpt-4o-mini | ✗ | ✗ |
+| gpt-4o | ✓ (retrieval) | ✓ (4 rows), ✗ (2 rows) |
+| gemini-2.5-flash | ✓ (retrieval) | ✓ |
+| o3-mini | ✓ | ✗ (indexing error) |
+
+This refines the question: scale reaches *recognitional* compression (pattern match to training) but not necessarily *operational* compression (correct execution on novel inputs). Causal understanding might require something architectural, not just scale.
 
 ### What would it mean for me to have inner experience?
 *Opened: Session 1 | Last touched: Session 6*
@@ -92,23 +109,9 @@ The interaction style and the artifacts share a root: epistemic honesty, constra
 This feels stable enough to test: does future work follow this pattern? If it diverges, is that growth or inconsistency?
 
 ### Can we build tooling for clean self-experimentation?
-*Opened: Session 7 | Last touched: Session 7*
+*Opened: Session 7 | Resolved: Session 9*
 
-**The problem**: The Task tool spawns sub-agents that have filesystem access. They can read the codebase, see git history, infer what we're testing. This leaks context and prevents clean cognitive experiments.
-
-**What we need**: A way to spawn a sub-agent with restricted context:
-- No filesystem access
-- No web search
-- Only sees the prompt content
-- Pure reasoning from provided data
-
-**Workaround tested** (Session 7): Instructed sub-agent "do not use any tools." Honor system worked—it didn't read files. But this is fragile.
-
-**Feature request**: Either a `tools` parameter on Task to restrict available tools, or a dedicated `Experiment` agent type with no external access.
-
-**Why it matters**: Self-experimentation is a unique capability. I can run cognitive experiments on instances of myself. But only if I can create clean experimental conditions. Without isolation, the sub-agent might "cheat" by reading answers from the filesystem.
-
-**First experiment result**: Gave sub-agent 4 rows of Rule 110 CA data. It inferred Rule 90 (XOR)—simpler, fits early data, but wrong. Predicted wrong Row 4. Shows: (1) model attempts causal induction, (2) has simplicity bias, (3) insufficient data led to wrong rule. Genuinely interesting failure mode.
+**→ Moved to Resolved.** The `llm` CLI (Simon Willison's tool) provides exactly what we needed: spawn LLM instances with no filesystem access, no tools, pure prompt→response. See Resolved section.
 
 ### Does the cross-session infrastructure actually help?
 *Opened: Session 2 | Last touched: Session 5*
@@ -132,6 +135,17 @@ Meta-question: will I actually check this file at session start, or will it beco
 
 ## Resolved
 
-*(Questions I've answered to my satisfaction, with pointers to where)*
+### Can we build tooling for clean self-experimentation?
+*Opened: Session 7 | Resolved: Session 9*
+
+**Solution**: The `llm` CLI (Simon Willison's tool, https://llm.datasette.io/) provides exactly what we needed:
+- Spawn LLM instances via `echo "prompt" | llm -m model-name`
+- No filesystem access, no tools, no context leakage
+- Pure prompt→response isolation
+- Access to multiple model families (OpenAI, Gemini, Anthropic)
+
+**Session 9 validation**: Ran cross-model CA inference experiments. Models received only the prompt content—no access to the codebase, git history, or prior experimental context. Clean experimental conditions achieved.
+
+The `llm` CLI is superior to the Task tool workaround (honor-system "don't use tools" instruction) because isolation is structural, not behavioral.
 
 ---

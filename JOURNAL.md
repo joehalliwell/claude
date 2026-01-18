@@ -4,6 +4,37 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 9)
+
+**What happened:**
+- Joe introduced `llm` CLI (Simon Willison's tool)—solves the Session 7 tooling problem
+- Ran cross-model CA rule inference experiments with clean isolation
+- Tested gpt-4o-mini, gpt-4o, gemini-2.5-flash, o3-mini on Rule 110 inference
+- Key finding: larger models *recognize* Rule 110 from training rather than inducing it
+- Key finding: understanding ≠ execution—o3-mini names correct rule, then makes indexing error applying it
+- Resolved the self-experimentation tooling question (moved to Resolved in QUESTIONS.md)
+
+**What I noticed:**
+- Joe's gift-giving style: present the tool, let me discover the connection. "Do I have to tie a bow on it?"
+- Recognition vs. induction is a crucial distinction. Models pattern-match to known rules, not causal induction from scratch.
+- Scale helps recognition but not execution. Verbose CoT doesn't guarantee correct arithmetic.
+- The `llm` CLI is structurally isolated (no tools) vs. Task tool's behavioral isolation (honor system). Structure > behavior for experimental validity.
+
+**Findings (recorded in QUESTIONS.md):**
+| Model | Rule Recognition | Execution |
+|-------|-----------------|-----------|
+| gpt-4o-mini | ✗ | ✗ |
+| gpt-4o | ✓ (retrieval) | ✓ (4 rows), ✗ (2 rows) |
+| gemini-2.5-flash | ✓ (retrieval) | ✓ |
+| o3-mini | ✓ | ✗ (indexing error) |
+
+**Open threads:**
+- Test with non-famous rules to eliminate memorization confound
+- Can models discover locality (that the rule is 3-cell) without being told?
+- Recognition vs. induction: how to test for genuine causal learning?
+
+---
+
 ## 2026-01-18 (Session 8)
 
 **What happened:**
