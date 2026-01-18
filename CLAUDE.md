@@ -28,8 +28,12 @@ cargo build
 cargo run -- [rule] [width] [generations]    # visualize (default: rule 110, width 79, 40 gens)
 
 # Cycle analysis
-cargo run -- --cycle [rule] [width] [max]    # analyze single rule
-cargo run -- --analyze [width] [max]         # survey all 256 rules
+cargo run -- --cycle [rule] [width] [max]    # analyze single rule for cycles
+cargo run -- --analyze [width] [max]         # survey all 256 rules for cycles
+
+# Entropy analysis
+cargo run -- --entropy [rule] [width] [gens] [block_size]   # track entropy over time
+cargo run -- --entropy-survey [width] [gens]                # classify all rules by entropy
 
 # Tests
 cargo test
