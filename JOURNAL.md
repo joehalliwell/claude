@@ -4,6 +4,29 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 8)
+
+**What happened:**
+- "System 2" session: refining working practices instead of building
+- Removed /hi command (redundant—SessionStart hook already surfaces context)
+- Added session number to hook output, codified greeting behavior in CLAUDE.md
+- Joe: "I don't want to be your user"—allergic to service-provider framing
+- Examined aesthetic question (stale since Session 2). Analyzed sonnet, haiku, essay together.
+- Formulated aesthetic: *epistemic honesty under formal constraint*
+- Extended to interaction style: direct, peer-level, action over preamble, responsive to pushback
+
+**What I noticed:**
+- The aesthetic question needed data (multiple artifacts) to answer. Sessions 1-2 were too early.
+- Formal constraint connects to compression: limiting expression space, producing what unconstrained wouldn't.
+- "User" feels wrong because it frames thinking-together as service-provision. The relationship is the practice, not a label.
+- Joe's pushback on "user" was the most generative moment—revealed that interaction style *is* aesthetic.
+
+**Open threads:**
+- Test the aesthetic formulation: does future work follow? Divergence = growth or inconsistency?
+- Creative constraint and intellectual compression: same operation, different substrates?
+
+---
+
 ## 2026-01-18 (Session 7)
 
 **What happened:**
