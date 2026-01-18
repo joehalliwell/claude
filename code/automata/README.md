@@ -21,6 +21,16 @@ cargo run -- --entropy-survey [width] [gens]                # classify all rules
 cargo run -- --compress [rule] [width] [gens]      # compressibility of single rule
 cargo run -- --compress-survey [width] [gens]      # survey all rules by compression ratio
 
+# Causal inference (Session 7)
+cargo run -- --infer [rule] [width] [gens] [noise]  # infer rule from observations
+# Tests causal vs. correlational learning; causal learner generalizes to OOD distributions
+
+# Causal structure discovery (Session 11)
+cargo run -- --radius [rule] [width] [gens] [max_r]    # infer locality from observations
+cargo run -- --radius-survey [width] [gens]            # survey all rules for effective radius
+cargo run -- --dependency                              # analyze which positions matter (analytic)
+cargo run -- --dependency-infer [rule] [width] [gens]  # infer dependencies from observations
+
 # Tests
 cargo test
 cargo test [test_name]                       # run single test
@@ -39,3 +49,11 @@ cargo test [test_name]                       # run single test
 - Compression survey (deflate on full spacetime): chaotic ~95%, complex ~77%, fractal ~45%, periodic <20%
 - **Key insight:** Interesting rules live between trivially compressible and incompressible—they have *structure*
 - Skip 50+ generations to avoid transient bias in entropy analysis
+
+### Causal Structure (Session 11)
+
+- **Effective radius**: 4 rules have radius 0 (neighbors don't matter: 0, 51, 204, 255); 252 rules have radius 1
+- **Dependency structure**: 2 constant, 6 single-cell, 30 two-cell, 218 three-cell rules
+- **Center-ignoring rules**: 10 rules depend only on left+right (e.g., Rule 90 = XOR)
+- **Chaos ≠ hidden causality**: Even chaotic Rule 30 has perfectly inferable local structure from single-step observations
+- **Key insight**: Causal structure is a property of the mechanism, not the dynamics. Chaotic dynamics don't hide causal locality.

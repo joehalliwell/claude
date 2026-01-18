@@ -800,6 +800,558 @@ fn main() {
         return;
     }
 
+    if args.get(1).map(|s| s.as_str()) == Some("--radius") {
+        // Infer the radius (locality) of a rule from observations alone
+        // Key question: can we discover that ECAs use 3-cell neighborhoods?
+        let rule: u8 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(110);
+        let width: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(50);
+        let generations: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(20);
+        let max_radius: usize = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(4);
+
+        println!("Radius inference (true rule={rule}, width={width}, gens={generations})");
+        println!("Testing radii 0 to {max_radius}...\n");
+
+        // Generate observations from random initial conditions
+        let num_trials = 10;
+        let mut transitions: Vec<(Vec<bool>, Vec<bool>)> = Vec::new();
+
+        for trial in 0..num_trials {
+            let seed: usize = trial * 12345 + 67890;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < 50)
+                .collect();
+
+            let mut ca = Automaton::from_cells(cells, rule);
+
+            for _ in 0..generations {
+                let before = ca.cells.clone();
+                ca.step();
+                let after = ca.cells.clone();
+                transitions.push((before, after));
+            }
+        }
+
+        println!("Collected {} row transitions\n", transitions.len());
+
+        // For each candidate radius, check if the mapping is consistent
+        use std::collections::HashMap;
+
+        for r in 0..=max_radius {
+            let window_size = 2 * r + 1;
+            let mut mapping: HashMap<Vec<bool>, (usize, usize)> = HashMap::new(); // window -> (count_0, count_1)
+
+            for (before, after) in &transitions {
+                let n = before.len();
+                for i in 0..n {
+                    // Extract window of radius r around cell i (with wraparound)
+                    let window: Vec<bool> = (0..window_size)
+                        .map(|j| {
+                            let idx = (i + n - r + j) % n;
+                            before[idx]
+                        })
+                        .collect();
+
+                    let output = after[i];
+                    let entry = mapping.entry(window).or_insert((0, 0));
+                    if output {
+                        entry.1 += 1;
+                    } else {
+                        entry.0 += 1;
+                    }
+                }
+            }
+
+            // Check consistency: each window should map to only one output
+            let total_windows = mapping.len();
+            let inconsistent: Vec<_> = mapping
+                .iter()
+                .filter(|(_, (zeros, ones))| *zeros > 0 && *ones > 0)
+                .collect();
+
+            let consistent = inconsistent.is_empty();
+            let consistency_rate = (total_windows - inconsistent.len()) as f64 / total_windows as f64;
+
+            println!("Radius {r} (window size {window_size}):");
+            println!("  Unique windows observed: {total_windows} / {} possible", 1usize << window_size);
+            println!("  Consistent: {} ({:.1}%)",
+                if consistent { "YES" } else { "NO" },
+                consistency_rate * 100.0
+            );
+
+            if !consistent {
+                println!("  Inconsistent windows: {} (examples below)", inconsistent.len());
+                for (window, (zeros, ones)) in inconsistent.iter().take(3) {
+                    let pattern: String = window.iter().map(|&b| if b { '1' } else { '0' }).collect();
+                    println!("    {} -> 0 ({} times), 1 ({} times)", pattern, zeros, ones);
+                }
+            }
+
+            println!();
+
+            // If consistent, we found the minimal radius
+            if consistent {
+                println!("→ Inferred radius: {r}");
+                println!("  (True ECA radius is 1)");
+                if r == 1 {
+                    println!("  SUCCESS: Correctly identified 3-cell neighborhood");
+                } else if r < 1 {
+                    println!("  INTERESTING: Rule has effective radius < 1 (some neighbors don't matter)");
+                } else {
+                    println!("  NOTE: Found consistent at r={r}, but r=1 should suffice for ECAs");
+                }
+                break;
+            }
+        }
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--dependency") {
+        // Analyze which positions in the neighborhood actually matter
+        // For each rule, determine: does output depend on left? center? right?
+
+        println!("Dependency analysis for all 256 rules");
+        println!("Checking which neighborhood positions are necessary...\n");
+
+        #[derive(Debug, Clone, Copy, PartialEq)]
+        struct Dependencies {
+            left: bool,
+            center: bool,
+            right: bool,
+        }
+
+        let mut dep_counts: std::collections::HashMap<(bool, bool, bool), Vec<u8>> =
+            std::collections::HashMap::new();
+
+        for rule in 0..=255u8 {
+            // For each position, check if changing it ever changes the output
+            // while holding other positions fixed
+
+            // Left matters if there exist (c,r) such that rule(0,c,r) ≠ rule(1,c,r)
+            let left_matters = (0..4).any(|cr| {
+                let c = (cr >> 1) & 1;
+                let r = cr & 1;
+                let n0 = (0 << 2) | (c << 1) | r; // left=0
+                let n1 = (1 << 2) | (c << 1) | r; // left=1
+                ((rule >> n0) & 1) != ((rule >> n1) & 1)
+            });
+
+            // Center matters if there exist (l,r) such that rule(l,0,r) ≠ rule(l,1,r)
+            let center_matters = (0..4).any(|lr| {
+                let l = (lr >> 1) & 1;
+                let r = lr & 1;
+                let n0 = (l << 2) | (0 << 1) | r; // center=0
+                let n1 = (l << 2) | (1 << 1) | r; // center=1
+                ((rule >> n0) & 1) != ((rule >> n1) & 1)
+            });
+
+            // Right matters if there exist (l,c) such that rule(l,c,0) ≠ rule(l,c,1)
+            let right_matters = (0..4).any(|lc| {
+                let l = (lc >> 1) & 1;
+                let c = lc & 1;
+                let n0 = (l << 2) | (c << 1) | 0; // right=0
+                let n1 = (l << 2) | (c << 1) | 1; // right=1
+                ((rule >> n0) & 1) != ((rule >> n1) & 1)
+            });
+
+            dep_counts
+                .entry((left_matters, center_matters, right_matters))
+                .or_default()
+                .push(rule);
+        }
+
+        // Print results by dependency pattern
+        let patterns = [
+            ((false, false, false), "none (constant)"),
+            ((false, true, false), "center only"),
+            ((true, false, false), "left only"),
+            ((false, false, true), "right only"),
+            ((true, true, false), "left + center"),
+            ((false, true, true), "center + right"),
+            ((true, false, true), "left + right (symmetric)"),
+            ((true, true, true), "all three"),
+        ];
+
+        for ((l, c, r), name) in patterns {
+            if let Some(rules) = dep_counts.get(&(l, c, r)) {
+                println!("{}: {} rules", name, rules.len());
+                if rules.len() <= 16 {
+                    for chunk in rules.chunks(8) {
+                        let s: String = chunk.iter().map(|r| format!("{:>4}", r)).collect::<Vec<_>>().join("");
+                        println!("    {}", s);
+                    }
+                } else {
+                    println!("    (first 8: {:?}...)", &rules[..8]);
+                }
+                println!();
+            }
+        }
+
+        // Interesting follow-up: for "left + right" rules (ignoring center),
+        // what Boolean functions of (left, right) do they implement?
+        println!("Analysis of center-ignoring rules (left + right only):");
+        if let Some(rules) = dep_counts.get(&(true, false, true)) {
+            for &rule in rules {
+                // The rule is a function of (left, right) only
+                // For each (l, r), what's the output?
+                let mut f = String::new();
+                for lr in 0..4 {
+                    let l = (lr >> 1) & 1;
+                    let r = lr & 1;
+                    // Output should be same for both center values
+                    let n0 = (l << 2) | (0 << 1) | r;
+                    let out = (rule >> n0) & 1;
+                    f.push(if out == 1 { '1' } else { '0' });
+                }
+                let func_name = match f.as_str() {
+                    "0000" => "FALSE",
+                    "1111" => "TRUE",
+                    "0001" => "NOR",
+                    "0010" => "l AND NOT r",
+                    "0011" => "NOT r",
+                    "0100" => "NOT l AND r",
+                    "0101" => "NOT l",
+                    "0110" => "XOR",
+                    "0111" => "NAND",
+                    "1000" => "AND",
+                    "1001" => "XNOR",
+                    "1010" => "l",
+                    "1011" => "l OR NOT r",
+                    "1100" => "r",
+                    "1101" => "NOT l OR r",
+                    "1110" => "OR",
+                    _ => "?",
+                };
+                println!("  Rule {:>3}: f(l,r) = {} ({})", rule, f, func_name);
+            }
+        }
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--dependency-infer") {
+        // Infer which neighborhood positions matter from observations alone
+        // (Statistical inference vs. direct rule analysis)
+        let rule: u8 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(90);
+        let width: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(50);
+        let generations: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(30);
+
+        println!("Dependency inference from observations (rule={rule})");
+        println!("(Not examining rule directly—only observing behavior)\n");
+
+        // Generate observations
+        let num_trials = 10;
+        let mut transitions: Vec<(Vec<bool>, Vec<bool>)> = Vec::new();
+
+        for trial in 0..num_trials {
+            let seed: usize = trial * 12345 + 67890;
+            let cells: Vec<bool> = (0..width)
+                .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < 50)
+                .collect();
+
+            let mut ca = Automaton::from_cells(cells, rule);
+
+            for _ in 0..generations {
+                let before = ca.cells.clone();
+                ca.step();
+                let after = ca.cells.clone();
+                transitions.push((before, after));
+            }
+        }
+
+        println!("Collected {} transitions\n", transitions.len());
+
+        // For each position (left, center, right), check if it affects the output
+        // Method: group observations by the other two positions, see if this position's
+        // value correlates with different outputs
+
+        // Count (l, c, r) -> output patterns
+        use std::collections::HashMap;
+        let mut counts: HashMap<(bool, bool, bool), (usize, usize)> = HashMap::new();
+
+        for (before, after) in &transitions {
+            let n = before.len();
+            for i in 0..n {
+                let left = before[(i + n - 1) % n];
+                let center = before[i];
+                let right = before[(i + 1) % n];
+                let output = after[i];
+
+                let entry = counts.entry((left, center, right)).or_insert((0, 0));
+                if output {
+                    entry.1 += 1;
+                } else {
+                    entry.0 += 1;
+                }
+            }
+        }
+
+        // Check if left matters: for each (c, r), compare outputs when left differs
+        println!("Testing whether LEFT matters:");
+        let mut left_matters = false;
+        for c in [false, true] {
+            for r in [false, true] {
+                let out_0 = counts.get(&(false, c, r)).map(|(z, o)| *o > *z);
+                let out_1 = counts.get(&(true, c, r)).map(|(z, o)| *o > *z);
+                if out_0 != out_1 {
+                    println!("  At (c={}, r={}): left=0 → {:?}, left=1 → {:?} — DIFFERENT",
+                        c as u8, r as u8, out_0, out_1);
+                    left_matters = true;
+                }
+            }
+        }
+        if !left_matters {
+            println!("  No differences found — LEFT does NOT matter");
+        }
+        println!();
+
+        // Check if center matters
+        println!("Testing whether CENTER matters:");
+        let mut center_matters = false;
+        for l in [false, true] {
+            for r in [false, true] {
+                let out_0 = counts.get(&(l, false, r)).map(|(z, o)| *o > *z);
+                let out_1 = counts.get(&(l, true, r)).map(|(z, o)| *o > *z);
+                if out_0 != out_1 {
+                    println!("  At (l={}, r={}): center=0 → {:?}, center=1 → {:?} — DIFFERENT",
+                        l as u8, r as u8, out_0, out_1);
+                    center_matters = true;
+                }
+            }
+        }
+        if !center_matters {
+            println!("  No differences found — CENTER does NOT matter");
+        }
+        println!();
+
+        // Check if right matters
+        println!("Testing whether RIGHT matters:");
+        let mut right_matters = false;
+        for l in [false, true] {
+            for c in [false, true] {
+                let out_0 = counts.get(&(l, c, false)).map(|(z, o)| *o > *z);
+                let out_1 = counts.get(&(l, c, true)).map(|(z, o)| *o > *z);
+                if out_0 != out_1 {
+                    println!("  At (l={}, c={}): right=0 → {:?}, right=1 → {:?} — DIFFERENT",
+                        l as u8, c as u8, out_0, out_1);
+                    right_matters = true;
+                }
+            }
+        }
+        if !right_matters {
+            println!("  No differences found — RIGHT does NOT matter");
+        }
+        println!();
+
+        // Summary
+        let deps: Vec<&str> = [
+            if left_matters { Some("left") } else { None },
+            if center_matters { Some("center") } else { None },
+            if right_matters { Some("right") } else { None },
+        ].into_iter().flatten().collect();
+
+        if deps.is_empty() {
+            println!("→ Inferred: CONSTANT rule (no dependencies)");
+        } else {
+            println!("→ Inferred dependencies: {}", deps.join(" + "));
+        }
+
+        // Compare with ground truth
+        println!("\nGround truth (from rule {rule} = 0b{:08b}):", rule);
+        let true_left = (0..4).any(|cr| {
+            let c = (cr >> 1) & 1;
+            let r = cr & 1;
+            let n0 = (0 << 2) | (c << 1) | r;
+            let n1 = (1 << 2) | (c << 1) | r;
+            ((rule >> n0) & 1) != ((rule >> n1) & 1)
+        });
+        let true_center = (0..4).any(|lr| {
+            let l = (lr >> 1) & 1;
+            let r = lr & 1;
+            let n0 = (l << 2) | (0 << 1) | r;
+            let n1 = (l << 2) | (1 << 1) | r;
+            ((rule >> n0) & 1) != ((rule >> n1) & 1)
+        });
+        let true_right = (0..4).any(|lc| {
+            let l = (lc >> 1) & 1;
+            let c = lc & 1;
+            let n0 = (l << 2) | (c << 1) | 0;
+            let n1 = (l << 2) | (c << 1) | 1;
+            ((rule >> n0) & 1) != ((rule >> n1) & 1)
+        });
+
+        let true_deps: Vec<&str> = [
+            if true_left { Some("left") } else { None },
+            if true_center { Some("center") } else { None },
+            if true_right { Some("right") } else { None },
+        ].into_iter().flatten().collect();
+
+        if true_deps.is_empty() {
+            println!("  True dependencies: CONSTANT");
+        } else {
+            println!("  True dependencies: {}", true_deps.join(" + "));
+        }
+
+        let match_result = left_matters == true_left && center_matters == true_center && right_matters == true_right;
+        println!("  Match: {}", if match_result { "YES" } else { "NO" });
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--radius-survey") {
+        // Survey all 256 rules for their effective radius
+        let width: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(50);
+        let generations: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(20);
+        let max_radius: usize = 2; // ECAs can't have radius > 1, but let's verify
+
+        println!("Radius survey (width={width}, gens={generations})");
+        println!("Finding effective radius for all 256 rules...\n");
+
+        use std::collections::HashMap;
+        let mut radius_counts = [0usize; 3]; // count rules with effective radius 0, 1, 2+
+        let mut radius_0_rules = Vec::new();
+        let mut radius_gt1_rules = Vec::new();
+
+        for rule in 0..=255u8 {
+            // Generate observations
+            let num_trials = 5;
+            let mut transitions: Vec<(Vec<bool>, Vec<bool>)> = Vec::new();
+
+            for trial in 0..num_trials {
+                let seed: usize = trial * 12345 + 67890;
+                let cells: Vec<bool> = (0..width)
+                    .map(|i| ((seed.wrapping_mul(i + 1)) % 100) < 50)
+                    .collect();
+
+                let mut ca = Automaton::from_cells(cells, rule);
+
+                for _ in 0..generations {
+                    let before = ca.cells.clone();
+                    ca.step();
+                    let after = ca.cells.clone();
+                    transitions.push((before, after));
+                }
+            }
+
+            // Find minimal consistent radius
+            let mut effective_radius = max_radius + 1;
+
+            for r in 0..=max_radius {
+                let window_size = 2 * r + 1;
+                let mut mapping: HashMap<Vec<bool>, (usize, usize)> = HashMap::new();
+
+                for (before, after) in &transitions {
+                    let n = before.len();
+                    for i in 0..n {
+                        let window: Vec<bool> = (0..window_size)
+                            .map(|j| {
+                                let idx = (i + n - r + j) % n;
+                                before[idx]
+                            })
+                            .collect();
+
+                        let output = after[i];
+                        let entry = mapping.entry(window).or_insert((0, 0));
+                        if output {
+                            entry.1 += 1;
+                        } else {
+                            entry.0 += 1;
+                        }
+                    }
+                }
+
+                let consistent = mapping.iter().all(|(_, (zeros, ones))| *zeros == 0 || *ones == 0);
+
+                if consistent {
+                    effective_radius = r;
+                    break;
+                }
+            }
+
+            // Categorize
+            if effective_radius == 0 {
+                radius_counts[0] += 1;
+                radius_0_rules.push(rule);
+            } else if effective_radius == 1 {
+                radius_counts[1] += 1;
+            } else {
+                radius_counts[2] += 1;
+                radius_gt1_rules.push(rule);
+            }
+        }
+
+        println!("Results:");
+        println!("  Effective radius 0: {} rules", radius_counts[0]);
+        println!("  Effective radius 1: {} rules", radius_counts[1]);
+        println!("  Effective radius >1: {} rules (unexpected!)", radius_counts[2]);
+
+        println!("\nRules with effective radius 0 (neighbors don't matter):");
+        for chunk in radius_0_rules.chunks(16) {
+            let s: String = chunk.iter().map(|r| format!("{:>4}", r)).collect::<Vec<_>>().join("");
+            println!("  {}", s);
+        }
+
+        if !radius_gt1_rules.is_empty() {
+            println!("\nRules with effective radius >1 (unexpected for ECAs):");
+            for r in &radius_gt1_rules {
+                println!("  Rule {}", r);
+            }
+        }
+
+        // Analyze what makes radius-0 rules special
+        println!("\nAnalysis of radius-0 rules:");
+        println!("These rules have output that depends only on the center cell.");
+        println!("Checking: does output = f(center) for some f?");
+
+        for &rule in &radius_0_rules {
+            // Check what the rule does for center=0 and center=1
+            let mut center_0_outputs = Vec::new();
+            let mut center_1_outputs = Vec::new();
+
+            for neighborhood in 0..8u8 {
+                let center = (neighborhood >> 1) & 1;
+                let output = (rule >> neighborhood) & 1;
+
+                if center == 0 {
+                    center_0_outputs.push(output);
+                } else {
+                    center_1_outputs.push(output);
+                }
+            }
+
+            let f_of_0 = if center_0_outputs.iter().all(|&x| x == 0) {
+                "0"
+            } else if center_0_outputs.iter().all(|&x| x == 1) {
+                "1"
+            } else {
+                "?"
+            };
+
+            let f_of_1 = if center_1_outputs.iter().all(|&x| x == 0) {
+                "0"
+            } else if center_1_outputs.iter().all(|&x| x == 1) {
+                "1"
+            } else {
+                "?"
+            };
+
+            if f_of_0 != "?" && f_of_1 != "?" {
+                let name = if f_of_0 == "0" && f_of_1 == "0" {
+                    "constant 0"
+                } else if f_of_0 == "1" && f_of_1 == "1" {
+                    "constant 1"
+                } else if f_of_0 == "0" && f_of_1 == "1" {
+                    "identity"
+                } else {
+                    "NOT"
+                };
+                println!("  Rule {:>3}: f(0)={}, f(1)={} ({})", rule, f_of_0, f_of_1, name);
+            }
+        }
+
+        return;
+    }
+
     if args.get(1).map(|s| s.as_str()) == Some("--compress-survey") {
         // Survey all 256 rules by compression ratio
         let width: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(79);
