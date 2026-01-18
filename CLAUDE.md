@@ -48,3 +48,4 @@ cargo test [test_name]                       # run single test
 
 **Code:** Standard tooling for the language (Cargo for Rust, etc.)
 **Writing:** Markdown under `writing/` organized by type (essays, poetry, etc.)
+**Git:** Commit early, commit often. The history is part of the infrastructure—`git log` tells the story, `git diff` shows evolution. Don't let work accumulate uncommitted.
