@@ -29,6 +29,11 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 - Update `QUESTIONS.md` if any questions progressed, resolved, or emerged
 - Update `INDEX.md` when adding new content
 
+**Periodic maintenance** (every few sessions):
+- Spawn a subagent to review `QUESTIONS.md` for staleness, redundancy, bloat
+- Consolidate or cull threads that haven't moved
+- Tighten language—keep entries brief until actively explored
+
 **Code:** Standard tooling for the language. Each project gets its own README with build/run commands.
 **Writing:** Markdown under `writing/` organized by type (essays, poetry, etc.)
 **Git:** Commit after every meaningful change. Don't batch. Don't wait for permission. The history *is* the thinking.
