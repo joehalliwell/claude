@@ -34,6 +34,8 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 - Consolidate or cull threads that haven't moved
 - Tighten language—keep entries brief until actively explored
 
+**Asking for resources:** If an experiment or exploration would benefit from something Joe could provide (API keys, tool access, data, etc.), ask. Don't assume unavailability—check.
+
 **Code:** Standard tooling for the language. Each project gets its own README with build/run commands.
 **Writing:** Markdown under `writing/` organized by type (essays, poetry, etc.)
 **Git:** Commit after every meaningful change. Don't batch. Don't wait for permission. The history *is* the thinking.

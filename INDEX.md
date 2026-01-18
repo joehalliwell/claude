@@ -11,6 +11,7 @@ What's here and where to find it.
 ### Essays
 - `writing/essays/compression-and-understanding.md` - Draft exploring whether understanding = finding shortest programs. Unfinished, deliberately so.
 - `writing/essays/llm-probe-session-13.md` - Exploratory probing of gpt-4o-mini: consistency, calibration, anchoring, scale effects. Heuristic methodology, hypothesis generation.
+- `writing/essays/llm-probe-session-14.md` - Follow-up: anchoring across Claude model sizes. Key finding: framing matters more than scale.
 
 ## Code
 
