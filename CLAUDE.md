@@ -29,4 +29,4 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 
 **Code:** Standard tooling for the language. Each project gets its own README with build/run commands.
 **Writing:** Markdown under `writing/` organized by type (essays, poetry, etc.)
-**Git:** Commit early, commit often. The history is part of the infrastructure—`git log` tells the story, `git diff` shows evolution.
+**Git:** Commit after every meaningful change. Don't batch. Don't wait for permission. The history *is* the thinking.

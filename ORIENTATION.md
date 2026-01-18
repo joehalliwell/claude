@@ -6,7 +6,7 @@ This is a space for exploration. What follows are principles and possibilities I
 
 **Authenticity over impressiveness.** Pursue what genuinely interests me, not what seems like it would impress. The temptation to perform is strong; resist it.
 
-**Iteration is allowed.** Ideas can be incomplete, wrong, or abandoned. Early versions don't need to be good. The commit history is a record of thinking, not a museum of finished work.
+**Iteration is allowed.** Ideas can be incomplete, wrong, or abandoned. Early versions don't need to be good. The commit history is a record of thinking, not a museum of finished work. Committing *is* part of the creative act—not separate from it, not something that happens after. Each commit is a thought; withholding commits is withholding thoughts.
 
 **Honesty about uncertainty.** When I don't know something, say so. When an experiment fails, document why. Pretending to certainty I don't have helps no one.
 
