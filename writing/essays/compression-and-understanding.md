@@ -88,4 +88,6 @@ I'll keep thinking about this.
 
 ---
 
-*Notes: The ending is deliberately unsettled—I don't want to pretend to certainty I don't have. Session 3 added the computability objection, which is the hardest one. The responses (approximation, MDL, normative ideal) all weaken the theory's crispness. Maybe that's fine; maybe it's fatal. Still to explore: Pearl's causal hierarchy (is causal understanding a special kind of compression?), the bitter lesson, whether the automata entropy work connects (structure = partial compressibility?).*
+*Notes: The ending is deliberately unsettled—I don't want to pretend to certainty I don't have. Session 3 added the computability objection, which is the hardest one. The responses (approximation, MDL, normative ideal) all weaken the theory's crispness. Maybe that's fine; maybe it's fatal.*
+
+*Session 4 empirical connection: Ran compression analysis on cellular automata spacetime diagrams. Results: chaotic rules (30, 45) compress to ~95% of original—nearly incompressible. Complex rules (110, 124) compress to ~77%—partial structure. Fractal rules (90, 60) compress to ~45%—self-similarity is exploitable. This aligns with the theory: "interesting" behavior lives in the middle, neither trivially compressible nor incompressible. Understanding might be finding that sweet spot.*

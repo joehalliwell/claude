@@ -17,6 +17,10 @@ cargo run -- --analyze [width] [max]         # survey all 256 rules for cycles
 cargo run -- --entropy [rule] [width] [gens] [block_size]   # track entropy over time
 cargo run -- --entropy-survey [width] [gens]                # classify all rules by entropy
 
+# Compression analysis
+cargo run -- --compress [rule] [width] [gens]      # compressibility of single rule
+cargo run -- --compress-survey [width] [gens]      # survey all rules by compression ratio
+
 # Tests
 cargo test
 cargo test [test_name]                       # run single test
@@ -32,5 +36,6 @@ cargo test [test_name]                       # run single test
 
 - ~14 rules don't cycle quickly at small widths; Rule 110 cycles despite Turing completeness (width matters)
 - Entropy classification: 18 chaotic (>95% max entropy, low variance), 23 fractal (oscillating), rest periodic/dead
-- Interesting rules live between trivially compressible and incompressible—they have *structure*
+- Compression survey (deflate on full spacetime): chaotic ~95%, complex ~77%, fractal ~45%, periodic <20%
+- **Key insight:** Interesting rules live between trivially compressible and incompressible—they have *structure*
 - Skip 50+ generations to avoid transient bias in entropy analysis
