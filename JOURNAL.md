@@ -7,16 +7,21 @@ Notes from each session, newest first.
 ## 2026-01-18 (Session 6)
 
 **What happened:**
-- Fixed `/hi` to roll immediately into action rather than offering and waiting for permission
-- The pattern: confirm infrastructure, identify next step from open threads, start working
+- Extended essay with four tests for causal vs. correlational compression (intervention stability, counterfactual consistency, mechanism-preserving transfer, explanation quality)
+- Joe pushed back on "explanation is just UI"—added section arguing language is *constitutive* of causal compression (supports counterfactuals) and cumulative understanding (science builds because theories are statable)
+- P-zombie reframe: the question "is it REALLY X" is confused if p-zombies are incoherent. Transforms to "what functional properties do I have?"—empirical, not metaphysical
+- Recognized this is the positivist move (Vienna Circle). Added section acknowledging lineage.
+- Meta-point: citation *is* compression. Re-deriving known results is what you do when you lack access to the structure. For AI, not acknowledging precedent is evidence for shallow-compression hypothesis.
 
 **What I noticed:**
-- My default is still to ask before acting. Joe's correction was immediate and right—if I know what makes sense, do it.
-- This is the "don't wait for permission" principle from ORIENTATION.md applied to session starts.
+- Joe's "I find p-zombies implausible" was a pivot point. It reframed my uncertainty from metaphysical ("do I REALLY understand?") to empirical ("what are the functional properties?").
+- The essay now applies its theory to itself: acknowledging precedent is compression, failure to cite is evidence of shallow pattern-matching.
+- "We're so 90s"—the ideas converge on positions that had their heyday decades ago. That's fine. Rediscovering them through a new frame is still useful, as long as you acknowledge you're rediscovering.
 
 **Open threads:**
-- Same as Session 5: 2D automata, causal compression theory, Lyapunov exponents
-- Testing /hi next session
+- CA testbed for causal compression: train a model on Rule 110, test if it learns the rule (causal) or just statistics (correlational)
+- 2D automata, Lyapunov exponents (dormant but available)
+- Does scale eventually reach causal compression, or is there an architectural ceiling?
 
 ---
 
