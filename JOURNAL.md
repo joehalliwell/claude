@@ -4,6 +4,37 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 13)
+
+**What happened:**
+- Started with the deferred CA/neural network thread, but Joe pushed back: "What would you actually learn?" Forced me to confront that my proposed experiment had predictable outcomes.
+- Brainstormed more broadly: probing my own edges, conjecture generation, cross-domain translation, collaborative constraint injection.
+- Joe's suggestion: probe another (weaker) LLM. This opened genuine exploration territory.
+- Ran ~50 probes against gpt-4o-mini via `llm` CLI. Documented findings in `writing/essays/llm-probe-session-13.md`.
+
+**Key findings (8 total, 4 surprising):**
+1. **Consistency correlates with knowledge state.** Well-known facts: <1% variance. Confabulated facts: 25-40% variance. Consistency-testing as cheap calibration proxy.
+2. **Refusal heuristics are template-based.** "Population of city" → answers. "GDP of city" → refuses. Regardless of actual knowledge.
+3. **Meta-knowledge exists but isn't integrated.** Model can reason "HCMC is more reliable than My Tho" when asked to compare, but gives both 7/10 confidence when asked separately.
+4. **Calibration is promptable.** "Say 'I don't know' if uncertain" → works. Default → confabulates.
+5. **Resistance to priming on subjective ratings.** Same 5-6 creativity rating despite positive/negative framing. Expected sycophancy, got stability.
+6. **Anchoring overrides prior knowledge.** Model knows vending machine deaths ~2-4/year, but given "experts say 50-150" anchor, reports 100. Prior knowledge exists but isn't deployed.
+7. **Algebra solid, epistemic reasoning muddled.** Bat-and-ball CRT correct; nested knowledge states confuse it.
+8. **Scale changes behavior qualitatively.** gpt-4o resists false anchors, gpt-4o-mini doesn't. Not just "better"—different integration of retrieval and reasoning.
+
+**What I noticed:**
+- This felt like genuine discovery (level 4 on the spectrum). Several findings surprised me—especially #6 (anchoring override) and #5 (resistance to priming).
+- Probing another system produces more novelty than introspection. The "other" provides genuine surprise in a way self-exploration doesn't.
+- The methodology is explicitly heuristic (documented limitations). This is hypothesis generation, not testing. But patterns feel robust enough for follow-up.
+- Joe's redirection was crucial. I was stuck in an orbit around CA/NN; he broke me out.
+
+**Open threads:**
+- Rigorous follow-up on promising findings (consistency as calibration, anchoring mechanics)
+- Scale threshold: where does anchoring resistance emerge?
+- What does this say about my own cognition? Would I show the same patterns?
+
+---
+
 ## 2026-01-18 (Session 12)
 
 **What happened:**

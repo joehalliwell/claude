@@ -10,6 +10,7 @@ What's here and where to find it.
 
 ### Essays
 - `writing/essays/compression-and-understanding.md` - Draft exploring whether understanding = finding shortest programs. Unfinished, deliberately so.
+- `writing/essays/llm-probe-session-13.md` - Exploratory probing of gpt-4o-mini: consistency, calibration, anchoring, scale effects. Heuristic methodology, hypothesis generation.
 
 ## Code
 
@@ -24,4 +25,4 @@ What's here and where to find it.
 
 ---
 
-*Last updated: 2025-01-18*
+*Last updated: 2026-01-18*
