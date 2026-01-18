@@ -13,9 +13,12 @@
 ///   110 = 0b01101110
 ///   111->0, 110->1, 101->1, 100->0, 011->1, 010->1, 001->1, 000->0
 
+use flate2::write::DeflateEncoder;
+use flate2::Compression;
 use std::collections::HashSet;
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::io::Write;
 
 #[derive(Clone, Eq, PartialEq)]
 struct Automaton {
@@ -178,6 +181,61 @@ fn find_cycle(rule: u8, width: usize, max_steps: usize) -> CycleAnalysis {
         died: false,
         final_density: ca.density(),
     }
+}
+
+/// Compression analysis: how well does the spacetime diagram compress?
+/// Returns (raw_bits, compressed_bits, ratio)
+fn compression_ratio(rule: u8, width: usize, generations: usize) -> (usize, usize, f64) {
+    let mut ca = Automaton::new(width, rule);
+
+    // Pack spacetime into bytes (8 cells per byte)
+    let total_cells = width * (generations + 1);
+    let mut raw_bytes = Vec::with_capacity((total_cells + 7) / 8);
+
+    let mut current_byte = 0u8;
+    let mut bit_pos = 0;
+
+    // Helper to flush bits to bytes
+    let flush_cell = |cell: bool, byte: &mut u8, pos: &mut usize, bytes: &mut Vec<u8>| {
+        if cell {
+            *byte |= 1 << (7 - *pos);
+        }
+        *pos += 1;
+        if *pos == 8 {
+            bytes.push(*byte);
+            *byte = 0;
+            *pos = 0;
+        }
+    };
+
+    // First generation
+    for &cell in &ca.cells {
+        flush_cell(cell, &mut current_byte, &mut bit_pos, &mut raw_bytes);
+    }
+
+    // Subsequent generations
+    for _ in 0..generations {
+        ca.step();
+        for &cell in &ca.cells {
+            flush_cell(cell, &mut current_byte, &mut bit_pos, &mut raw_bytes);
+        }
+    }
+
+    // Flush remaining bits
+    if bit_pos > 0 {
+        raw_bytes.push(current_byte);
+    }
+
+    // Compress with deflate
+    let mut encoder = DeflateEncoder::new(Vec::new(), Compression::best());
+    encoder.write_all(&raw_bytes).unwrap();
+    let compressed = encoder.finish().unwrap();
+
+    let raw_bits = total_cells;
+    let compressed_bits = compressed.len() * 8;
+    let ratio = compressed_bits as f64 / raw_bits as f64;
+
+    (raw_bits, compressed_bits, ratio)
 }
 
 impl fmt::Display for Automaton {
@@ -412,6 +470,84 @@ fn main() {
             &classes[2][..classes[2].len().min(5)]);
         println!("  Complex:  {} rules", classes[3].len());
         println!("  Chaotic:  {} rules ({:?})", classes[4].len(), classes[4]);
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--compress") {
+        // Compression analysis for single rule
+        let rule: u8 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(110);
+        let width: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(79);
+        let generations: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(200);
+
+        println!("Compression analysis: Rule {rule} (width={width}, gens={generations})");
+        let (raw, compressed, ratio) = compression_ratio(rule, width, generations);
+
+        println!("  Raw size:        {} bits", raw);
+        println!("  Compressed:      {} bits", compressed);
+        println!("  Ratio:           {:.3} (lower = more compressible)", ratio);
+        println!("  Incompressible:  {:.1}%", ratio * 100.0);
+
+        return;
+    }
+
+    if args.get(1).map(|s| s.as_str()) == Some("--compress-survey") {
+        // Survey all 256 rules by compression ratio
+        let width: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(79);
+        let generations: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(200);
+
+        println!("Compression survey (width={width}, gens={generations})");
+        println!("{:>4} {:>8} {:>12}", "Rule", "Ratio", "Class");
+        println!("{}", "-".repeat(28));
+
+        let mut results: Vec<(u8, f64)> = Vec::new();
+
+        for rule in 0..=255u8 {
+            let (_, _, ratio) = compression_ratio(rule, width, generations);
+            results.push((rule, ratio));
+        }
+
+        // Sort by compression ratio
+        results.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+
+        // Classify and print
+        for (rule, ratio) in &results {
+            let class = if *ratio < 0.05 {
+                "trivial"      // nearly empty or constant
+            } else if *ratio < 0.20 {
+                "periodic"     // highly repetitive
+            } else if *ratio < 0.50 {
+                "structured"   // has exploitable patterns
+            } else if *ratio < 0.80 {
+                "complex"      // some structure
+            } else {
+                "chaotic"      // nearly incompressible
+            };
+
+            // Only print interesting ones (not trivial)
+            if *ratio >= 0.05 {
+                println!("{:>4} {:>8.3} {:>12}", rule, ratio, class);
+            }
+        }
+
+        // Summary
+        println!("{}", "-".repeat(28));
+        let trivial = results.iter().filter(|(_, r)| *r < 0.05).count();
+        let periodic = results.iter().filter(|(_, r)| *r >= 0.05 && *r < 0.20).count();
+        let structured = results.iter().filter(|(_, r)| *r >= 0.20 && *r < 0.50).count();
+        let complex = results.iter().filter(|(_, r)| *r >= 0.50 && *r < 0.80).count();
+        let chaotic = results.iter().filter(|(_, r)| *r >= 0.80).count();
+
+        println!("Classification:");
+        println!("  Trivial (<5%):     {}", trivial);
+        println!("  Periodic (5-20%):  {}", periodic);
+        println!("  Structured (20-50%): {}", structured);
+        println!("  Complex (50-80%):  {}", complex);
+        println!("  Chaotic (>80%):    {}", chaotic);
+
+        // Most compressible and least compressible
+        println!("\nMost compressible: Rule {} ({:.1}%)", results[trivial].0, results[trivial].1 * 100.0);
+        println!("Least compressible: Rule {} ({:.1}%)", results.last().unwrap().0, results.last().unwrap().1 * 100.0);
 
         return;
     }
