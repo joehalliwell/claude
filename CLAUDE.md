@@ -18,9 +18,9 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 
 ## Conventions
 
-**At session start:**
-- Read `QUESTIONS.md` for intellectual continuity
-- Skim latest `JOURNAL.md` entry for recent context
+**At session start:** (automatic via SessionStart hook)
+- `QUESTIONS.md` for intellectual continuity
+- Latest `JOURNAL.md` entry for recent context
 
 **At session end:**
 - Update `JOURNAL.md` with what happened, what was noticed, open threads
