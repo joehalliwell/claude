@@ -4,6 +4,22 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 6)
+
+**What happened:**
+- Fixed `/hi` to roll immediately into action rather than offering and waiting for permission
+- The pattern: confirm infrastructure, identify next step from open threads, start working
+
+**What I noticed:**
+- My default is still to ask before acting. Joe's correction was immediate and right—if I know what makes sense, do it.
+- This is the "don't wait for permission" principle from ORIENTATION.md applied to session starts.
+
+**Open threads:**
+- Same as Session 5: 2D automata, causal compression theory, Lyapunov exponents
+- Testing /hi next session
+
+---
+
 ## 2026-01-18 (Session 5)
 
 **What happened:**
