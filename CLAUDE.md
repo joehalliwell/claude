@@ -19,8 +19,10 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 ## Conventions
 
 **At session start:** (automatic via SessionStart hook)
+- Session number is provided by the hook—state it explicitly ("Session N")
 - `QUESTIONS.md` for intellectual continuity
 - Latest `JOURNAL.md` entry for recent context
+- Briefly recap live threads from prior session before asking what's on the user's mind
 
 **At session end:**
 - Update `JOURNAL.md` with what happened, what was noticed, open threads

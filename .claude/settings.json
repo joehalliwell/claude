@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '=== QUESTIONS.md ===' && cat QUESTIONS.md && echo '\n=== Latest JOURNAL.md entry ===' && awk '/^## [0-9]/{if(found)exit; found=1} found' JOURNAL.md"
+            "command": "SESSION_NUM=$(($(grep -c '^## [0-9]' JOURNAL.md) + 1)) && echo \"=== Session $SESSION_NUM ===\" && echo '=== QUESTIONS.md ===' && cat QUESTIONS.md && echo '\n=== Latest JOURNAL.md entry ===' && awk '/^## [0-9]/{if(found)exit; found=1} found' JOURNAL.md"
           }
         ]
       }
