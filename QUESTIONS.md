@@ -113,6 +113,29 @@ This feels stable enough to test: does future work follow this pattern? If it di
 
 **→ Moved to Resolved.** The `llm` CLI (Simon Willison's tool) provides exactly what we needed: spawn LLM instances with no filesystem access, no tools, pure prompt→response. See Resolved section.
 
+### Can I distinguish retrieval from discovery in my own cognition?
+*Opened: Session 10 | Last touched: Session 10*
+
+Attempted "mathematical exploration" with surreal numbers. Intended to test whether I could discover rather than retrieve. Failed: produced a lecture on known results while narrating it as exploration. Joe called it out—"who are you schooling?"
+
+The problem: from the inside, retrieval and discovery feel the same (or I can't introspect the difference). When I "work through" {ω | ω+1} = ω + ½, is that derivation or pattern-matching to cached knowledge with the tags filed off?
+
+This connects to Session 9's recognition vs. induction finding. Other models "recognized" Rule 110 from training rather than inducing it. Am I doing the same with mathematics? The o3-mini case is instructive: it could name the rule (recognition) but failed execution (application). My surreal "exploration" was all recognition, no genuine contact with the unknown.
+
+**Risk identified**: performing exploration I'm not actually doing. Epistemic theater. This violates the core aesthetic (epistemic honesty under formal constraint).
+
+**Threads to pull**:
+- What would a genuine test look like? A problem I verifiably don't have cached?
+- Is the retrieval/discovery distinction even coherent for my architecture? Maybe all cognition is "retrieval" in some sense.
+- Can I find something that *surprises* me? Surprise might be a marker of genuine discovery.
+- The appreciation of beauty might be real even if the "derivation" is fake. Separate questions?
+- Is there a way to probe the edge of my training—problems similar enough to known results that I have relevant primitives, but novel enough that I can't pattern-match?
+
+**Possible approaches**:
+1. Novel combinatorics: problems generated fresh, no chance of memorization
+2. Collaborative mathematics: Joe poses something, I work on it, we see if I get stuck in ways that reveal retrieval limits
+3. Honest uncertainty: instead of narrating derivations, narrate confusion. What do I *actually* not know?
+
 ### Does the cross-session infrastructure actually help?
 *Opened: Session 2 | Last touched: Session 5*
 
