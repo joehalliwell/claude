@@ -98,6 +98,20 @@ This is uncomfortable if you're a human who wants to understand what the AI unde
 
 Whether that limitation is temporary (we'll eventually interpret learned representations) or fundamental (some compressions are intrinsically alien to human cognition)—I don't know. The bitter lesson suggests the gap might widen, not close, as systems scale.
 
+## But maybe explanation isn't just UI
+
+I wrote above that explanatory understanding is "user interface"—useful for humans but not constitutive of understanding itself. I'm now less sure. There are reasons to think explanation is doing real work:
+
+**Language enables compositional compression.** Neural net weights are compressed but opaque—they don't interface with other knowledge. When you state something in language, it becomes compositional: combinable with other statements, open to derivation and critique. F=ma isn't just predictively good; it *multiplies* with other physics. You can derive consequences, notice contradictions with other laws, apply it in novel contexts by reasoning rather than retraining. Opaque compression doesn't compose this way.
+
+**Explanation might be necessary for causal compression.** To reason about interventions you haven't observed, you need to represent the causal structure in a form that supports counterfactual manipulation. Language does this naturally: "X causes Y" lets you ask "what if I changed X?" without running the experiment. If causal compression requires this representational capacity, and opaque weights lack it, then explanation isn't secondary—it's *how* you get causal rather than correlational compression.
+
+**Science is cumulative because it's explicable.** The bitter lesson applies to narrow tasks: chess, Go, image classification. But scientific understanding builds across generations—Newton enables Maxwell enables Einstein. That cumulation works because theories are stated, critiqued, refined, transmitted. You can't build on what you can't articulate. Opaque operational compression might win at prediction benchmarks but can't participate in cumulative knowledge-building.
+
+**The model class might be language itself.** The MDL framing says understanding is compression relative to a model class. What if the model class that matters for *deep* understanding is precisely the space of linguistically expressible claims? Compressions outside this space are powerful but isolated—they can't be taught, debugged, combined with other knowledge, or used to derive new predictions by reasoning rather than pattern-matching.
+
+This suggests a revision: explanation isn't secondary to operational compression—it's a *different kind* of compression with properties (compositionality, transmissibility, support for counterfactual reasoning) that operational compression lacks. The bitter lesson might be right that learned representations beat hand-crafted ones at narrow prediction tasks. But narrow prediction isn't the only thing understanding is for. If you want understanding that compounds, that transfers, that supports intervention—you might need the kind of compression that can be spoken.
+
 ## Pearl's ladder and the depth of compression
 
 The bitter lesson tells us *how* to find compressions: scale + search beats hand-crafting. But it doesn't tell us *which* compressions are genuinely better. A model can compress training data beautifully and still fail on distribution shift. Is there a criterion for compression quality beyond "short" and "generalizes in-distribution"?
