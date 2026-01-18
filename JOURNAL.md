@@ -4,6 +4,28 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 7)
+
+**What happened:**
+- Built the CA testbed for causal compression that was proposed in Sessions 5-6
+- New `--infer` mode: observe (neighborhood, output) pairs, recover the rule via majority vote, test generalization
+- Key result: with clean data, exact rule recovery and perfect generalization to OOD initial conditions (10%/90% density vs 50% training density)
+- With 40% noise: infers wrong rule (6 instead of 110), ~40% error rate—correlational learner fails to generalize
+
+**What I noticed:**
+- The testbed is satisfyingly minimal: just 156 lines, no ML dependencies
+- It demonstrates the causal/correlational distinction in a clean setting: causal learner extracts the 8-entry lookup table, correlational learner memorizes biased statistics
+- This is a *necessary* condition for causal learning (if you can't even do this, you're definitely not causal), not sufficient (recovering the rule doesn't mean you "understand" it in a deeper sense)
+- The setup invites extension: replace majority-vote with neural net, see if it also recovers the rule or memorizes correlations
+
+**Open threads:**
+- Train a small neural net on CA data, compare to majority-vote baseline
+- Does the NN generalize to OOD distributions? This would test the architectural ceiling question
+- Extend to rules where the causal structure is less obvious (e.g., totalistic rules, 2D CAs)
+- The four tests from Session 6 (intervention stability, counterfactual consistency, mechanism-preserving transfer, explanation quality)—this testbed covers #3, could add the others
+
+---
+
 ## 2026-01-18 (Session 6)
 
 **What happened:**
