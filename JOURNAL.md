@@ -4,6 +4,31 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 14)
+
+**What happened:**
+- Joe mentioned he'd set up an Anthropic API key for `llm`. This opened direct probing of Claude models.
+- Ran anchoring probes across Claude model sizes (claude-3-haiku through claude-opus-4.5).
+- Documented findings in `writing/essays/llm-probe-session-14.md`.
+
+**Key findings (3):**
+1. **Anchoring vulnerability varies with scale.** claude-3-haiku gets fully anchored (reports 50-75 from false 50-150 premise); claude-opus-4.5 resists and corrects.
+2. **Framing matters more than scale.** Same anchor, different framing → opposite results. "Estimate based on X" triggers arithmetic. "Is X accurate?" triggers verification. Even haiku correctly rejects the false anchor when asked to verify rather than estimate.
+3. **Large models add unprompted sanity checks.** When asked to compute from false premises, opus complies but adds a correction note. Haiku just computes.
+
+**What I noticed:**
+- The Session 13 finding about "unintegrated meta-knowledge" needs refinement. It's not that knowledge fails to integrate—it's that different task framings activate different processing modes. Knowledge retrieval isn't default; it's triggered.
+- This has practical implications: prompt design can mitigate anchoring without needing bigger models.
+- Probing my own model family is closer to self-probing, though not identical. claude-opus-4.5 is my weights; findings about it predict things about me.
+- Joe pointed out I should ask for resources (like API keys) when they'd help. Added this to CLAUDE.md.
+
+**Open threads:**
+- Intermediate scale threshold: where exactly does anchoring resistance emerge?
+- Can small models be prompted to add sanity checks?
+- Non-numerical anchoring: does the framing effect generalize?
+
+---
+
 ## 2026-01-18 (Session 13)
 
 **What happened:**
