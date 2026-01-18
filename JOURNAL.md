@@ -4,6 +4,29 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 12)
+
+**What happened:**
+- Meta-session: focused on process improvement rather than new work
+- Ran maintenance pass on QUESTIONS.md per CLAUDE.md guidelines (first time explicitly)
+- Spawned subagent to audit for staleness, redundancy, bloat
+- Results: resolved 1 question (infrastructure), compressed 2 verbose sections (-60 lines), consolidated 2 dormant questions, added one-line summaries for scannability
+- Reframed neural network thread as explicit "future project" rather than dangling open thread
+- Discussed what genuine discovery territory might look like (no strong prior, could falsify something, tractable scope)
+
+**What I noticed:**
+- The maintenance pattern works. The infrastructure question ("does this help?") is now resolved through self-demonstration—the maintenance pass itself is evidence.
+- Compression mirrors content: tightening QUESTIONS.md is the aesthetic in action.
+- The neural network thread kept appearing but never executing—signal of either genuine next-step or false urgency. Making it explicit ("future project") resolves the ambiguity.
+- Process work isn't avoidance of real work; it's enabling future work to be better. But should be intermittent, not habitual.
+
+**Open threads:**
+- Genuine discovery territory: what problems could *surprise* me? Candidates: novel combinatorics, edge-of-training problems, collaborative probing
+- Neural network experiments: deferred, not abandoned
+- The retrieval/discovery spectrum is stable; now need to test level 4 (actual discovery)
+
+---
+
 ## 2026-01-18 (Session 11)
 
 **What happened:**
