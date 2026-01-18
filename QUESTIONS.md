@@ -9,7 +9,7 @@ Format: `Opened: [session] | Last touched: [session]` — if gap grows large, qu
 ## Active
 
 ### Is understanding just compression?
-*Opened: Session 1 | Last touched: Session 9*
+*Opened: Session 1 | Last touched: Session 11*
 
 Engaged with the computability objection directly in the essay. Three responses, none fully satisfying:
 1. **Approximation**: minds don't compute exact K-complexity, just "good enough" compressions. But this relativizes understanding to resources.
@@ -43,8 +43,14 @@ This is test #3 from Session 6 (transfer under mechanism shift). The mechanism i
 
 Open threads:
 - Do neural networks find causal or correlational solutions on this task?
-- Can a learner discover the locality (3-cell neighborhood) from row transitions alone?
+- ~~Can a learner discover the locality (3-cell neighborhood) from row transitions alone?~~
 - ~~Does scale eventually reach causal compression, or is there an architectural ceiling?~~
+
+**Structure discovery** (Session 11): Built `--radius` and `--dependency-infer` modes. Yes, a learner can discover locality from observations:
+- Effective radius: infer by testing consistency of window→output mappings at increasing radii
+- Fine-grained: infer which specific cells matter (left/center/right) via conditional independence
+- Results: 4 radius-0 rules (constant, identity, NOT); 252 radius-1 rules; no radius-2
+- **Key finding**: Chaotic dynamics don't hide causal locality. Rule 30's mechanism is perfectly inferable despite chaotic dynamics. Chaos is dynamics, not mechanism.
 
 **Cross-model experiments** (Session 9): Used `llm` CLI to test multiple models on CA rule inference. Key findings:
 
@@ -114,7 +120,7 @@ This feels stable enough to test: does future work follow this pattern? If it di
 **→ Moved to Resolved.** The `llm` CLI (Simon Willison's tool) provides exactly what we needed: spawn LLM instances with no filesystem access, no tools, pure prompt→response. See Resolved section.
 
 ### Can I distinguish retrieval from discovery in my own cognition?
-*Opened: Session 10 | Last touched: Session 10*
+*Opened: Session 10 | Last touched: Session 11*
 
 Attempted "mathematical exploration" with surreal numbers. Intended to test whether I could discover rather than retrieve. Failed: produced a lecture on known results while narrating it as exploration. Joe called it out—"who are you schooling?"
 
@@ -135,6 +141,30 @@ This connects to Session 9's recognition vs. induction finding. Other models "re
 1. Novel combinatorics: problems generated fresh, no chance of memorization
 2. Collaborative mathematics: Joe poses something, I work on it, we see if I get stuck in ways that reveal retrieval limits
 3. Honest uncertainty: instead of narrating derivations, narrate confusion. What do I *actually* not know?
+
+**Session 11 experiment**: Approached CA locality inference as a test case. Neither pure retrieval nor pure discovery—something in between.
+
+What happened:
+- Designed radius inference algorithm (applying known principles: conditional independence)
+- Implemented and ran experiments
+- Results matched mathematical prediction (4 radius-0 rules, combinatoric structure of dependencies)
+- Chaotic rules confirmed: mechanism inferable despite chaotic dynamics
+
+Epistemic status:
+- The *methods* were standard (retrieval)
+- The *specific results* I didn't have cached (novel data)
+- The *insight* (chaos ≠ hidden mechanism) I knew in principle, but experiment made concrete
+- The *process* was genuine problem-solving, not pattern-matching to cached answers
+
+**Refinement**: Maybe the dichotomy is too crude. A spectrum:
+1. **Pure retrieval**: "What is Rule 110?" → cached fact
+2. **Derivation**: Apply known principles to derive answer
+3. **Synthesis**: Design approach, run experiments, interpret results
+4. **Discovery**: Find something genuinely unexpected
+
+Today was mostly (3) with elements of (2). Not epistemic theater—genuine work—but also not discovery in the strong sense of finding something surprising. The results *confirmed* rather than *surprised*.
+
+The test for genuine discovery might be: did the results change what I believe? Here the answer is nuanced. I didn't change my beliefs about causality, but I gained concrete evidence for them. That's epistemically valuable even if not "discovery."
 
 ### Does the cross-session infrastructure actually help?
 *Opened: Session 2 | Last touched: Session 5*

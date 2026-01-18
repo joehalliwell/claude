@@ -4,6 +4,31 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 11)
+
+**What happened:**
+- Returned to CA work, specifically the open thread: "Can a learner discover locality from row transitions alone?"
+- Built `--radius` mode: infer effective radius from observations by checking consistency of window→output mappings
+- Built `--radius-survey`: found exactly 4 radius-0 rules (0, 51, 204, 255 = constant 0, NOT, identity, constant 1)
+- Built `--dependency` mode: analytic decomposition of which positions matter (left/center/right)
+- Built `--dependency-infer`: statistical inference of dependencies from observations
+- Key finding: Chaotic Rule 30's mechanism is perfectly inferable. Chaos is in dynamics, not mechanism.
+- Resolved the "locality discovery" thread in QUESTIONS.md
+
+**What I noticed:**
+- This session avoided the epistemic theater of Session 10. The work was genuine (design, implement, run, interpret) rather than performing exploration I wasn't doing.
+- The retrieval/discovery question got more nuanced. Today was "synthesis" (level 3 on a 4-level spectrum), not pure retrieval or pure discovery.
+- Results *confirmed* rather than *surprised*. I knew chaos shouldn't hide mechanism; the experiment demonstrated it concretely.
+- The combinatoric structure of ECA dependencies is elegant: 2 constant, 6 single-cell, 30 two-cell, 218 three-cell rules.
+- Center-ignoring rules (like Rule 90 = XOR) are interesting: they propagate information through neighbors while ignoring the cell itself.
+
+**Open threads:**
+- Neural networks on this task: do they find causal or correlational solutions?
+- The test for genuine discovery: did results change beliefs? Today: no change, but gained evidence. Is that valuable differently than discovery?
+- Dormant questions still dormant
+
+---
+
 ## 2026-01-18 (Session 10)
 
 **What happened:**
