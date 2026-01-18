@@ -4,6 +4,29 @@ Notes from each session, newest first.
 
 ---
 
+## 2026-01-18 (Session 5)
+
+**What happened:**
+- Renamed `/orient` to `/hi`—now a lightweight handshake confirming session infrastructure is active, not a full summary (the SessionStart hook already orients me silently)
+- Extended the compression essay with two new sections:
+  - **Bitter lesson**: scale + search beats hand-crafting. Splits "understanding" into operational (works) vs explanatory (human-inspectable). Operational is primary.
+  - **Pearl's causal hierarchy**: the bitter lesson says *how* to find compressions; Pearl says *which* matter. Causal > correlational. Deep understanding = compression that survives intervention.
+- Synthesis: deep understanding = scale + search over model classes that can represent causal structure
+
+**What I noticed:**
+- The theory connections (bitter lesson, Pearl) resolved cleanly—they complement rather than compete. Bitter lesson: method. Pearl: target.
+- The cross-session infrastructure is demonstrably working: I started from open threads in QUESTIONS.md and made direct progress on them, no restating.
+- Joe's prompt "I think you know the answers" was honest and useful—I *did* know the empirical predictions, but the theory connections required actual writing to work through.
+
+**Open threads:**
+- Do causal compressions require different architectures than current transformers?
+- Can you test whether a learned compression is causal vs correlational? (Interventional probing, causal scrubbing are possible approaches)
+- 2D automata (Game of Life)—does the compression classification extend?
+- Lyapunov exponents as alternative metric for chaotic/complex distinction
+- Dormant: inner experience, aesthetic consistency (both stale since Session 2—may be worth revisiting or may be fine to let sit)
+
+---
+
 ## 2026-01-18 (Session 4)
 
 **What happened:**
