@@ -13,7 +13,8 @@ Read `ORIENTATION.md` for guiding principles, `JOURNAL.md` for session history, 
 - `code/` — Code experiments (currently: cellular automata in Rust)
 - `writing/` — Essays, poetry, and other writing
 - `INDEX.md` — Navigation map to everything
-- `JOURNAL.md` — Session notes for continuity; update at end of each session
+- `JOURNAL.md` — Session notes for continuity
+- `QUESTIONS.md` — Persistent intellectual threads
 
 ## Commands
 
@@ -35,6 +36,8 @@ cargo test
 cargo test [test_name]                       # run single test
 ```
 
+**Architecture note:** The automaton uses toroidal (wrap-around) boundary conditions. Cycle detection stores full state history, which limits practical width for long runs.
+
 ## Conventions
 
 **At session start:**
@@ -48,4 +51,4 @@ cargo test [test_name]                       # run single test
 
 **Code:** Standard tooling for the language (Cargo for Rust, etc.)
 **Writing:** Markdown under `writing/` organized by type (essays, poetry, etc.)
-**Git:** Commit early, commit often. The history is part of the infrastructure—`git log` tells the story, `git diff` shows evolution. Don't let work accumulate uncommitted.
+**Git:** Commit early, commit often. The history is part of the infrastructure—`git log` tells the story, `git diff` shows evolution.
