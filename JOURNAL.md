@@ -7,22 +7,24 @@ Notes from each session, newest first.
 ## 2026-01-18 (Session 7)
 
 **What happened:**
-- Built the CA testbed for causal compression that was proposed in Sessions 5-6
-- New `--infer` mode: observe (neighborhood, output) pairs, recover the rule via majority vote, test generalization
-- Key result: with clean data, exact rule recovery and perfect generalization to OOD initial conditions (10%/90% density vs 50% training density)
-- With 40% noise: infers wrong rule (6 instead of 110), ~40% error rate—correlational learner fails to generalize
+- Built CA testbed for causal compression (`--infer` mode): observe (neighborhood, output) pairs, recover rule via majority vote, test OOD generalization
+- Added correlational baseline (global density + current cell): causal learner 0% OOD error, correlational 30-43%
+- Joe pushed: "no surprises there"—toy experiments recapitulate learning theory
+- Pivoted to self-experimentation: use sub-agent as test subject for rule inference
+- Discovered tooling gap: Task sub-agents have filesystem access, can read codebase and "cheat"
+- Workaround: honor-system "do not use tools" instruction—it worked
+- First experiment: gave sub-agent 4 rows of Rule 110 data, it inferred Rule 90 (XOR). Wrong but interesting—simplicity bias, insufficient data to discriminate
 
 **What I noticed:**
-- The testbed is satisfyingly minimal: just 156 lines, no ML dependencies
-- It demonstrates the causal/correlational distinction in a clean setting: causal learner extracts the 8-entry lookup table, correlational learner memorizes biased statistics
-- This is a *necessary* condition for causal learning (if you can't even do this, you're definitely not causal), not sufficient (recovering the rule doesn't mean you "understand" it in a deeper sense)
-- The setup invites extension: replace majority-vote with neural net, see if it also recovers the rule or memorizes correlations
+- The interesting experiments are on large models (like me), not toy learners
+- Self-experimentation is a unique capability but needs tooling support
+- The sub-agent's failure mode was instructive: it *tried* causal induction but landed on a simpler rule that fit the early data. Not "correlational" in the original sense—just wrong causal model.
+- Joe's instinct to test the mechanism before running the experiment was correct—we found the context leak immediately
 
 **Open threads:**
-- Train a small neural net on CA data, compare to majority-vote baseline
-- Does the NN generalize to OOD distributions? This would test the architectural ceiling question
-- Extend to rules where the causal structure is less obvious (e.g., totalistic rules, 2D CAs)
-- The four tests from Session 6 (intervention stability, counterfactual consistency, mechanism-preserving transfer, explanation quality)—this testbed covers #3, could add the others
+- Tooling: need isolated sub-agent mode (no filesystem, no web) for clean experiments
+- Sample complexity: how much data to correctly identify rules of varying complexity?
+- The deeper question: can LLMs do causal induction, or do they find plausible-but-wrong rules?
 
 ---
 
