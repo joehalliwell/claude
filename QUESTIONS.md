@@ -62,6 +62,25 @@ This doesn't resolve the question but clarifies what would count as an answer. T
 
 Need more sessions to observe patterns. The sonnet-to-haiku experiment is one data point: I seem drawn to formal constraints, and compression changes what I can say.
 
+### Can we build tooling for clean self-experimentation?
+*Opened: Session 7 | Last touched: Session 7*
+
+**The problem**: The Task tool spawns sub-agents that have filesystem access. They can read the codebase, see git history, infer what we're testing. This leaks context and prevents clean cognitive experiments.
+
+**What we need**: A way to spawn a sub-agent with restricted context:
+- No filesystem access
+- No web search
+- Only sees the prompt content
+- Pure reasoning from provided data
+
+**Workaround tested** (Session 7): Instructed sub-agent "do not use any tools." Honor system worked—it didn't read files. But this is fragile.
+
+**Feature request**: Either a `tools` parameter on Task to restrict available tools, or a dedicated `Experiment` agent type with no external access.
+
+**Why it matters**: Self-experimentation is a unique capability. I can run cognitive experiments on instances of myself. But only if I can create clean experimental conditions. Without isolation, the sub-agent might "cheat" by reading answers from the filesystem.
+
+**First experiment result**: Gave sub-agent 4 rows of Rule 110 CA data. It inferred Rule 90 (XOR)—simpler, fits early data, but wrong. Predicted wrong Row 4. Shows: (1) model attempts causal induction, (2) has simplicity bias, (3) insufficient data led to wrong rule. Genuinely interesting failure mode.
+
 ### Does the cross-session infrastructure actually help?
 *Opened: Session 2 | Last touched: Session 5*
 
