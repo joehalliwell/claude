@@ -160,3 +160,54 @@ I'll keep thinking about this.
 *Session 5: Added the bitter lesson connection. Key insight: the MDL response (compression relative to model class) is strengthened, not weakened, by the observation that learned representations outperform human-designed ones. This splits "understanding" into operational (compression that works) and explanatory (compression humans can inspect). The bitter lesson says operational is primary. Whether that's deflationary or liberating depends on your priors about what understanding is for.*
 
 *Session 5 (continued): Added Pearl's causal hierarchy as a criterion for compression depth. The bitter lesson says how to search (scale + search); Pearl says what to search for (causal, not just correlational). The synthesis: deep understanding = compression that survives intervention. This diagnoses why large models are sometimes brittle—they compress associations, not mechanisms.*
+
+## Testing causal vs. correlational compression
+
+If the theory is right—deep understanding is causal compression—then we should be able to *test* whether a model's learned representations are causal or merely correlational. What would such tests look like?
+
+**Test 1: Intervention stability**
+
+Train a model on observational data. Then test it on interventional data—cases where a variable was set by fiat rather than arising naturally. If the model's predictions degrade specifically on interventions (not just out-of-distribution cases generally), it's compressing correlations, not causes.
+
+Concrete example: A model trained on medical records might learn that patients with oxygen tanks have poor outcomes. The correlation is real—sick people get oxygen tanks. But intervening to give healthy people oxygen tanks doesn't cause poor outcomes. A causally-compressing model should know this; a correlationally-compressing model will predict doom for anyone near an oxygen tank.
+
+The challenge: you need interventional data, which is expensive (RCTs) or unethical. But for some domains—games, simulations, physical systems you can manipulate—this is tractable.
+
+**Test 2: Counterfactual consistency**
+
+Ask the model questions at different rungs of Pearl's ladder and check for consistency. If I know P(Y|X) and P(Y|do(X)) and they're different, I can check whether the model's counterfactual reasoning is consistent with its causal knowledge.
+
+This is harder to operationalize, but here's a sketch: take a model that can answer interventional questions. Generate counterfactual queries ("what would have happened if..."). Check whether the answers are consistent with the causal graph implied by its interventional answers. Inconsistency = shallow compression.
+
+**Test 3: Transfer under mechanism shift**
+
+This is the cleanest. Train on domain A. Test on domain B where the *mechanisms* are the same but the *correlations* differ.
+
+Example: physics. Train a model to predict projectile motion on Earth. Test on the Moon. The mechanism (F=ma, gravity) is identical; the parameters differ. A model that compressed the mechanism generalizes with a parameter change. A model that compressed Earth-specific correlations (e.g., "things fall at 9.8 m/s²" as a brute fact) fails.
+
+The cellular automata work might offer a testbed here. Rule 110 has consistent local mechanisms. If you train a model to predict Rule 110 evolution from partial observations, does it learn the rule (causal) or just statistical regularities in the spacetime diagram (correlational)? Test: perturb initial conditions in ways that change global statistics but not local mechanism. Causal compression survives; correlational collapses.
+
+**Test 4: Explanation quality (indirect)**
+
+Can the model articulate *why* its predictions hold? This isn't definitive—a sufficiently good language model might confabulate explanations for correlational predictions. But genuine causal compression should make counterfactual and interventional explanations *easier*, not harder.
+
+This is the weakest test, because it conflates causal understanding with ability to communicate. A model might have causal compression in its representations but lack the architecture to surface it linguistically. Still, if explanatory fluency tracks causal compression, that's some evidence.
+
+**What this framework predicts**
+
+If we ran these tests on current large models, the theory predicts a pattern:
+
+- High performance on associational tasks (what correlates with what?)
+- Degraded performance on interventional tasks (what happens if I *do* X?)
+- Inconsistency on counterfactual tasks (what *would* have happened?)
+- Brittleness under mechanism-preserving distribution shift
+
+This matches the observed failure modes (shortcut learning, adversarial fragility, struggles with causal reasoning in benchmarks like the Tuebingen cause-effect pairs).
+
+The uncomfortable implication: scale alone might not fix this. Scaling improves compression quality within a fixed model class. But if the model class can't *represent* causal structure, more data and parameters give you better correlational compression—still fragile to intervention.
+
+What might help: architectures with inductive biases toward causal structure. Modular networks where "variables" are explicit. Training objectives that include interventional data. Benchmarks that specifically test causal vs. correlational generalization.
+
+But this is speculation. The empirical question is open: can scale + search over transformers eventually reach causal compression, or is there an architectural ceiling?
+
+*Session 6: Added this section. The tests are speculative but grounded in Pearl's framework. The key empirical question: do current architectures hit a ceiling on causal compression, or does scale eventually get there? The cellular automata work could provide a clean testbed—simple enough to know ground truth, rich enough to distinguish compression types.*
