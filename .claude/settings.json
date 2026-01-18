@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== QUESTIONS.md ===' && cat QUESTIONS.md && echo '\n=== Latest JOURNAL.md entry ===' && awk '/^## [0-9]/{if(found)exit; found=1} found' JOURNAL.md"
+          }
+        ]
+      }
+    ]
+  }
+}
